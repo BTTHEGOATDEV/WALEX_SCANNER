@@ -3,8 +3,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
+  const { toast } = useToast();
+
+  const handleNewScan = () => {
+    toast({
+      title: "New Scan Initiated",
+      description: "Starting comprehensive security scan...",
+    });
+  };
+
+  const handleQuickAction = (actionTitle: string) => {
+    toast({
+      title: `${actionTitle} Started`,
+      description: "Initializing scan parameters...",
+    });
+  };
+
+  const handleScanView = (target: string) => {
+    toast({
+      title: "Viewing Scan Details",
+      description: `Opening detailed results for ${target}`,
+    });
+  };
   const overviewStats = [
     {
       title: "Active Scans",
@@ -148,7 +171,7 @@ const Dashboard = () => {
             </h1>
             <p className="text-muted-foreground">Real-time security assessment overview</p>
           </div>
-          <Button variant="cyber" size="lg">
+          <Button variant="cyber" size="lg" onClick={handleNewScan}>
             <Play className="h-4 w-4 mr-2" />
             New Scan
           </Button>
@@ -188,7 +211,11 @@ const Dashboard = () => {
             <CardContent>
               <div className="space-y-4">
                 {recentScans.map((scan) => (
-                  <div key={scan.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                  <div 
+                    key={scan.id} 
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => handleScanView(scan.target)}
+                  >
                     <div className="flex items-center gap-3">
                       {getStatusIcon(scan.status)}
                       <div>
@@ -229,6 +256,7 @@ const Dashboard = () => {
                       key={index}
                       variant={action.variant}
                       className="w-full justify-start h-auto p-3"
+                      onClick={() => handleQuickAction(action.title)}
                     >
                       <IconComponent className="h-4 w-4 mr-3" />
                       <div className="text-left">

@@ -2,8 +2,17 @@ import { Shield, Home, FolderOpen, Activity, FileText, Settings, User } from "lu
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const Navigation = () => {
+  const { toast } = useToast();
+
+  const handleNavigation = (label: string) => {
+    toast({
+      title: `Navigating to ${label}`,
+      description: `Opening ${label.toLowerCase()} section...`,
+    });
+  };
   const navItems = [
     { icon: Home, label: "Dashboard", active: true },
     { icon: FolderOpen, label: "Projects", count: 8 },
@@ -37,6 +46,7 @@ const Navigation = () => {
                   variant={item.active ? "cyber" : "ghost"}
                   size="sm"
                   className="relative"
+                  onClick={() => handleNavigation(item.label)}
                 >
                   <IconComponent className="h-4 w-4 mr-2" />
                   {item.label}
