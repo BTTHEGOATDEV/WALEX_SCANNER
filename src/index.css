@@ -8,35 +8,67 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 210 98% 58%;
+    --primary-foreground: 224 71% 4%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 213 31% 91%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 215 25% 27%;
+    --muted-foreground: 217.9 10.6% 64.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 215 25% 27%;
+    --accent-foreground: 213 31% 91%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 213 31% 91%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 215 25% 27%;
+    --input: 215 25% 27%;
+    --ring: 210 98% 58%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Cybersecurity theme colors */
+    --cyber-green: 142 71% 45%;
+    --cyber-green-foreground: 224 71% 4%;
+    --cyber-orange: 25 95% 53%;
+    --cyber-orange-foreground: 224 71% 4%;
+    --cyber-red: 0 84% 60%;
+    --cyber-red-foreground: 213 31% 91%;
+    --cyber-blue: 217 92% 76%;
+    --cyber-blue-foreground: 224 71% 4%;
+    
+    /* Status colors */
+    --success: 142 71% 45%;
+    --success-foreground: 224 71% 4%;
+    --warning: 25 95% 53%;
+    --warning-foreground: 224 71% 4%;
+    --critical: 0 84% 60%;
+    --critical-foreground: 213 31% 91%;
+    
+    /* Gradients */
+    --gradient-cyber: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--cyber-blue)));
+    --gradient-danger: linear-gradient(135deg, hsl(var(--cyber-red)), hsl(var(--cyber-orange)));
+    --gradient-success: linear-gradient(135deg, hsl(var(--cyber-green)), hsl(var(--primary)));
+    
+    /* Shadows */
+    --shadow-cyber: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.4);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
