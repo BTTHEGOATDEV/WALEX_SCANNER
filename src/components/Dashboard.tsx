@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import ScanDialog from "@/components/ScanDialog";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -171,10 +172,12 @@ const Dashboard = () => {
             </h1>
             <p className="text-muted-foreground">Real-time security assessment overview</p>
           </div>
-          <Button variant="cyber" size="lg" onClick={handleNewScan}>
-            <Play className="h-4 w-4 mr-2" />
-            New Scan
-          </Button>
+          <ScanDialog actionType="Scan New Domain">
+            <Button variant="cyber" size="lg">
+              <Play className="h-4 w-4 mr-2" />
+              New Scan
+            </Button>
+          </ScanDialog>
         </div>
 
         {/* Overview Stats */}
@@ -252,18 +255,18 @@ const Dashboard = () => {
                 {quickActions.map((action, index) => {
                   const IconComponent = action.icon;
                   return (
-                    <Button
-                      key={index}
-                      variant={action.variant}
-                      className="w-full justify-start h-auto p-3"
-                      onClick={() => handleQuickAction(action.title)}
-                    >
-                      <IconComponent className="h-4 w-4 mr-3" />
-                      <div className="text-left">
-                        <div className="font-medium">{action.title}</div>
-                        <div className="text-xs opacity-90">{action.description}</div>
-                      </div>
-                    </Button>
+                    <ScanDialog key={index} actionType={action.title}>
+                      <Button
+                        variant={action.variant}
+                        className="w-full justify-start h-auto p-3"
+                      >
+                        <IconComponent className="h-4 w-4 mr-3" />
+                        <div className="text-left">
+                          <div className="font-medium">{action.title}</div>
+                          <div className="text-xs opacity-90">{action.description}</div>
+                        </div>
+                      </Button>
+                    </ScanDialog>
                   );
                 })}
               </CardContent>

@@ -3,23 +3,28 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Navigation = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleNavigation = (label: string) => {
+  const navItems = [
+    { icon: Home, label: "Dashboard", path: "/" },
+    { icon: FolderOpen, label: "Projects", path: "/projects", count: 8 },
+    { icon: Activity, label: "Scans", path: "/scans", count: 3 },
+    { icon: FileText, label: "Reports", path: "/reports" },
+    { icon: Settings, label: "Settings", path: "/settings" },
+  ];
+
+  const handleNavigation = (path: string, label: string) => {
+    navigate(path);
     toast({
       title: `Navigating to ${label}`,
       description: `Opening ${label.toLowerCase()} section...`,
     });
   };
-  const navItems = [
-    { icon: Home, label: "Dashboard", active: true },
-    { icon: FolderOpen, label: "Projects", count: 8 },
-    { icon: Activity, label: "Scans", count: 3 },
-    { icon: FileText, label: "Reports" },
-    { icon: Settings, label: "Settings" },
-  ];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border/50">
@@ -43,10 +48,10 @@ const Navigation = () => {
               return (
                 <Button
                   key={index}
-                  variant={item.active ? "cyber" : "ghost"}
+                  variant={location.pathname === item.path ? "cyber" : "ghost"}
                   size="sm"
                   className="relative"
-                  onClick={() => handleNavigation(item.label)}
+                  onClick={() => handleNavigation(item.path, item.label)}
                 >
                   <IconComponent className="h-4 w-4 mr-2" />
                   {item.label}
