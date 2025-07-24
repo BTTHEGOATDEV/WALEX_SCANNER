@@ -6,102 +6,39 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
+import ReportDialog from "@/components/ReportDialog";
 
 const Reports = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
 
-  const reports = [
-    {
-      id: 1,
-      title: "E-commerce Security Audit - Final Report",
-      project: "TechCorp Inc.",
-      type: "Executive Summary",
-      format: "PDF",
-      size: "2.4 MB",
-      created: "2024-01-23",
-      status: "ready",
-      findings: 23,
-      severity: "high",
-      pages: 45,
-    },
-    {
-      id: 2,
-      title: "Financial App Vulnerability Assessment",
-      project: "SecureBank Ltd.",
-      type: "Technical Report",
-      format: "PDF",
-      size: "5.1 MB",
-      created: "2024-01-22",
-      status: "ready",
-      findings: 15,
-      severity: "critical",
-      pages: 78,
-    },
-    {
-      id: 3,
-      title: "Healthcare Platform - Compliance Report",
-      project: "MedTech Solutions",
-      type: "Compliance",
-      format: "DOCX",
-      size: "1.8 MB",
-      created: "2024-01-21",
-      status: "generating",
-      findings: 8,
-      severity: "medium",
-      pages: 32,
-    },
-    {
-      id: 4,
-      title: "IoT Device Security Analysis",
-      project: "SmartHome Co.",
-      type: "Technical Report",
-      format: "PDF",
-      size: "3.7 MB",
-      created: "2024-01-20",
-      status: "ready",
-      findings: 12,
-      severity: "high",
-      pages: 56,
-    },
-    {
-      id: 5,
-      title: "Monthly Security Dashboard",
-      project: "All Projects",
-      type: "Dashboard",
-      format: "HTML",
-      size: "890 KB",
-      created: "2024-01-19",
-      status: "ready",
-      findings: 67,
-      severity: "mixed",
-      pages: 12,
-    },
-  ];
+  // Replace this with actual API call to fetch reports
+  const reports: any[] = [];
 
+  // Replace with actual stats from your API
   const stats = [
     {
       title: "Total Reports",
-      value: "127",
+      value: "0",
       icon: FileText,
       description: "Generated this month",
     },
     {
       title: "Executive Summaries",
-      value: "23",
+      value: "0",
       icon: BarChart3,
       description: "For stakeholders",
     },
     {
       title: "Technical Reports",
-      value: "89",
+      value: "0",
       icon: PieChart,
       description: "Detailed findings",
     },
     {
       title: "Compliance Reports",
-      value: "15",
+      value: "0",
       icon: TrendingUp,
       description: "Regulatory requirements",
     },
@@ -140,12 +77,7 @@ const Reports = () => {
     });
   };
 
-  const handleGenerate = () => {
-    toast({
-      title: "Generate New Report",
-      description: "Opening report generation wizard...",
-    });
-  };
+  // This will be handled by the ReportDialog component
 
   const filteredReports = reports.filter(report => {
     const matchesSearch = report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -167,10 +99,12 @@ const Reports = () => {
               </h1>
               <p className="text-muted-foreground">Generate and manage security reports</p>
             </div>
-            <Button variant="cyber" size="lg" onClick={handleGenerate}>
-              <FileText className="h-4 w-4 mr-2" />
-              Generate Report
-            </Button>
+            <ReportDialog>
+              <Button variant="cyber" size="lg">
+                <FileText className="h-4 w-4 mr-2" />
+                Generate Report
+              </Button>
+            </ReportDialog>
           </div>
 
           {/* Stats Overview */}
@@ -221,63 +155,79 @@ const Reports = () => {
 
           {/* Reports List */}
           <div className="space-y-4">
-            {filteredReports.map((report) => (
-              <Card key={report.id} className="border-border/50 hover:border-primary/50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <FileText className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-foreground">{report.title}</h3>
-                          <Badge className={getStatusColor(report.status)}>
-                            {report.status}
-                          </Badge>
-                          <Badge variant="outline" className={getSeverityColor(report.severity)}>
-                            {report.severity}
-                          </Badge>
+            {filteredReports.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Reports Available</h3>
+                <p className="text-muted-foreground mb-6">
+                  {searchTerm ? "No reports match your search criteria." : "Generate your first security report to get started."}
+                </p>
+                <ReportDialog>
+                  <Button variant="cyber">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Generate Your First Report
+                  </Button>
+                </ReportDialog>
+              </div>
+            ) : (
+              filteredReports.map((report) => (
+                <Card key={report.id} className="border-border/50 hover:border-primary/50 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <FileText className="h-5 w-5 text-primary" />
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {report.project} • {report.type} • {report.format}
-                        </p>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {report.created}
-                          </span>
-                          <span>{report.size}</span>
-                          <span>{report.pages} pages</span>
-                          <span>{report.findings} findings</span>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-foreground">{report.title}</h3>
+                            <Badge className={getStatusColor(report.status)}>
+                              {report.status}
+                            </Badge>
+                            <Badge variant="outline" className={getSeverityColor(report.severity)}>
+                              {report.severity}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {report.project} • {report.type} • {report.format}
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {report.created}
+                            </span>
+                            <span>{report.size}</span>
+                            <span>{report.pages} pages</span>
+                            <span>{report.findings} findings</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleView(report.title)}
-                        disabled={report.status === "generating"}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        View
-                      </Button>
-                      <Button
-                        variant="cyber"
-                        size="sm"
-                        onClick={() => handleDownload(report.title)}
-                        disabled={report.status === "generating"}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleView(report.title)}
+                          disabled={report.status === "generating"}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View
+                        </Button>
+                        <Button
+                          variant="cyber"
+                          size="sm"
+                          onClick={() => handleDownload(report.title)}
+                          disabled={report.status === "generating"}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       </div>

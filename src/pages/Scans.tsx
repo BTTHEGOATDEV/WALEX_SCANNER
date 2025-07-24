@@ -13,68 +13,8 @@ const Scans = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
 
-  const scans = [
-    {
-      id: 1,
-      target: "api.example.com",
-      type: "Full Security Scan",
-      status: "running",
-      progress: 73,
-      startTime: "2024-01-23 14:30",
-      estimatedCompletion: "15:45",
-      findings: 8,
-      severity: "high",
-      project: "E-commerce Audit",
-    },
-    {
-      id: 2,
-      target: "webapp.client.org",
-      type: "Vulnerability Assessment",
-      status: "completed",
-      progress: 100,
-      startTime: "2024-01-23 12:00",
-      estimatedCompletion: "Completed",
-      findings: 15,
-      severity: "critical",
-      project: "Financial App Pentest",
-    },
-    {
-      id: 3,
-      target: "subdomain.target.com",
-      type: "Port Scan",
-      status: "queued",
-      progress: 0,
-      startTime: "Scheduled for 16:00",
-      estimatedCompletion: "16:30",
-      findings: 0,
-      severity: "none",
-      project: "Healthcare Platform",
-    },
-    {
-      id: 4,
-      target: "mobile.app.net",
-      type: "SSL/TLS Analysis",
-      status: "completed",
-      progress: 100,
-      startTime: "2024-01-23 10:15",
-      estimatedCompletion: "Completed",
-      findings: 3,
-      severity: "medium",
-      project: "IoT Assessment",
-    },
-    {
-      id: 5,
-      target: "secure.domain.net",
-      type: "CMS Detection",
-      status: "failed",
-      progress: 45,
-      startTime: "2024-01-23 09:30",
-      estimatedCompletion: "Failed at 10:15",
-      findings: 2,
-      severity: "low",
-      project: "E-commerce Audit",
-    },
-  ];
+  // Replace this with actual API call to fetch scans
+  const scans: any[] = [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -164,89 +104,103 @@ const Scans = () => {
 
           {/* Scans List */}
           <div className="space-y-4">
-            {filteredScans.map((scan) => (
-              <Card key={scan.id} className="border-border/50 hover:border-primary/50 transition-colors">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Activity className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-foreground">{scan.target}</h3>
-                          <Badge className={getStatusColor(scan.status)}>
-                            {scan.status}
-                          </Badge>
-                          {scan.severity !== "none" && (
-                            <Badge variant="outline" className={getSeverityColor(scan.severity)}>
-                              {scan.severity}
+            {filteredScans.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Target className="h-16 w-16 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Scans Found</h3>
+                <p className="text-muted-foreground mb-6">
+                  {searchTerm ? "No scans match your search criteria." : "Start your first security scan to see results here."}
+                </p>
+                <Button variant="cyber" onClick={handleNewScan}>
+                  <Play className="h-4 w-4 mr-2" />
+                  Start New Scan
+                </Button>
+              </div>
+            ) : (
+              filteredScans.map((scan) => (
+                <Card key={scan.id} className="border-border/50 hover:border-primary/50 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Activity className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-foreground">{scan.target}</h3>
+                            <Badge className={getStatusColor(scan.status)}>
+                              {scan.status}
                             </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{scan.type} • {scan.project}</p>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {scan.startTime}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {scan.estimatedCompletion}
-                          </span>
-                          {scan.findings > 0 && (
-                            <span className="flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3" />
-                              {scan.findings} findings
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      {scan.status === "running" && (
-                        <div className="w-32 space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span>Progress</span>
-                            <span>{scan.progress}%</span>
+                            {scan.severity !== "none" && (
+                              <Badge variant="outline" className={getSeverityColor(scan.severity)}>
+                                {scan.severity}
+                              </Badge>
+                            )}
                           </div>
-                          <Progress value={scan.progress} className="h-2" />
+                          <p className="text-sm text-muted-foreground">{scan.type} • {scan.project}</p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {scan.startTime}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {scan.estimatedCompletion}
+                            </span>
+                            {scan.findings > 0 && (
+                              <span className="flex items-center gap-1">
+                                <AlertTriangle className="h-3 w-3" />
+                                {scan.findings} findings
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      )}
-                      
-                      <div className="flex gap-2">
+                      </div>
+
+                      <div className="flex items-center gap-3">
                         {scan.status === "running" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleScanAction("Paused", scan.id)}
-                          >
-                            <Pause className="h-4 w-4" />
-                          </Button>
+                          <div className="w-32 space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span>Progress</span>
+                              <span>{scan.progress}%</span>
+                            </div>
+                            <Progress value={scan.progress} className="h-2" />
+                          </div>
                         )}
-                        {(scan.status === "completed" || scan.status === "failed") && (
+                        
+                        <div className="flex gap-2">
+                          {scan.status === "running" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleScanAction("Paused", scan.id)}
+                            >
+                              <Pause className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {(scan.status === "completed" || scan.status === "failed") && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleScanAction("Restarted", scan.id)}
+                            >
+                              <RotateCcw className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
-                            onClick={() => handleScanAction("Restarted", scan.id)}
+                            onClick={() => handleScanAction("Viewed", scan.id)}
                           >
-                            <RotateCcw className="h-4 w-4" />
+                            View Details
                           </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleScanAction("Viewed", scan.id)}
-                        >
-                          View Details
-                        </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       </div>

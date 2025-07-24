@@ -6,61 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
+import ProjectDialog from "@/components/ProjectDialog";
 
 const Projects = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const projects = [
-    {
-      id: 1,
-      name: "E-commerce Security Audit",
-      client: "TechCorp Inc.",
-      status: "active",
-      progress: 75,
-      targets: 12,
-      findings: 23,
-      created: "2024-01-15",
-      lastScan: "2 hours ago",
-      team: ["John Doe", "Jane Smith"],
-    },
-    {
-      id: 2,
-      name: "Financial App Pentest",
-      client: "SecureBank Ltd.",
-      status: "completed",
-      progress: 100,
-      targets: 8,
-      findings: 15,
-      created: "2024-01-10",
-      lastScan: "3 days ago",
-      team: ["Alice Johnson"],
-    },
-    {
-      id: 3,
-      name: "Healthcare Platform Review",
-      client: "MedTech Solutions",
-      status: "planning",
-      progress: 15,
-      targets: 15,
-      findings: 2,
-      created: "2024-01-20",
-      lastScan: "1 week ago",
-      team: ["Bob Wilson", "Carol Davis"],
-    },
-    {
-      id: 4,
-      name: "IoT Device Assessment",
-      client: "SmartHome Co.",
-      status: "active",
-      progress: 45,
-      targets: 25,
-      findings: 8,
-      created: "2024-01-12",
-      lastScan: "1 day ago",
-      team: ["David Lee"],
-    },
-  ];
+  // Replace this with actual API call to fetch projects
+  const projects: any[] = [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -71,12 +24,7 @@ const Projects = () => {
     }
   };
 
-  const handleCreateProject = () => {
-    toast({
-      title: "Create New Project",
-      description: "Opening project creation wizard...",
-    });
-  };
+  // This will be handled by the ProjectDialog component
 
   const handleProjectClick = (projectName: string) => {
     toast({
@@ -103,10 +51,12 @@ const Projects = () => {
               </h1>
               <p className="text-muted-foreground">Manage your penetration testing projects</p>
             </div>
-            <Button variant="cyber" size="lg" onClick={handleCreateProject}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Project
-            </Button>
+            <ProjectDialog>
+              <Button variant="cyber" size="lg">
+                <Plus className="h-4 w-4 mr-2" />
+                New Project
+              </Button>
+            </ProjectDialog>
           </div>
 
           {/* Search and Filters */}
@@ -124,65 +74,81 @@ const Projects = () => {
 
           {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProjects.map((project) => (
-              <Card 
-                key={project.id} 
-                className="border-border/50 hover:border-primary/50 transition-all cursor-pointer hover:shadow-lg"
-                onClick={() => handleProjectClick(project.name)}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <FolderOpen className="h-5 w-5 text-primary" />
-                      <Badge className={getStatusColor(project.status)}>
-                        {project.status}
-                      </Badge>
+            {filteredProjects.length === 0 ? (
+              <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                <FolderOpen className="h-16 w-16 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Projects Found</h3>
+                <p className="text-muted-foreground mb-6">
+                  {searchTerm ? "No projects match your search criteria." : "Get started by creating your first project."}
+                </p>
+                <ProjectDialog>
+                  <Button variant="cyber">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First Project
+                  </Button>
+                </ProjectDialog>
+              </div>
+            ) : (
+              filteredProjects.map((project) => (
+                <Card 
+                  key={project.id} 
+                  className="border-border/50 hover:border-primary/50 transition-all cursor-pointer hover:shadow-lg"
+                  onClick={() => handleProjectClick(project.name)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <FolderOpen className="h-5 w-5 text-primary" />
+                        <Badge className={getStatusColor(project.status)}>
+                          {project.status}
+                        </Badge>
+                      </div>
+                      <Button variant="ghost" size="sm">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{project.name}</CardTitle>
-                    <CardDescription>{project.client}</CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Target className="h-4 w-4 text-muted-foreground" />
-                      <span>{project.targets} targets</span>
+                    <div>
+                      <CardTitle className="text-lg">{project.name}</CardTitle>
+                      <CardDescription>{project.client}</CardDescription>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>{project.team.length} members</span>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <Target className="h-4 w-4 text-muted-foreground" />
+                        <span>{project.targets} targets</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span>{project.team.length} members</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span>{project.lastScan}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{project.lastScan}</span>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Progress</span>
+                        <span>{project.progress}%</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div 
+                          className="bg-primary h-2 rounded-full transition-all"
+                          style={{ width: `${project.progress}%` }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Progress</span>
-                      <span>{project.progress}%</span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all"
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
-                  </div>
 
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Findings: {project.findings}</span>
-                    <span>Created: {project.created}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Findings: {project.findings}</span>
+                      <span>Created: {project.created}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </div>
       </div>

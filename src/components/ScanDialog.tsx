@@ -48,12 +48,8 @@ const ScanDialog = ({ actionType, children }: ScanDialogProps) => {
     ],
   };
 
-  const projects = [
-    "E-commerce Security Audit",
-    "Financial App Pentest", 
-    "Healthcare Platform Review",
-    "IoT Device Assessment",
-  ];
+  // Replace this with actual API call to fetch projects
+  const projects: string[] = [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
