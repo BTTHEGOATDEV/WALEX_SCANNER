@@ -29,92 +29,43 @@ const Dashboard = () => {
       description: `Opening detailed results for ${target}`,
     });
   };
+  // Replace with actual API calls to get dashboard stats
   const overviewStats = [
     {
       title: "Active Scans",
-      value: "3",
+      value: "0",
       icon: Activity,
       description: "Currently running",
       variant: "cyber" as const,
     },
     {
       title: "Total Findings",
-      value: "127",
+      value: "0",
       icon: AlertTriangle,
       description: "Last 30 days",
       variant: "warning" as const,
     },
     {
       title: "Targets Monitored",
-      value: "42",
+      value: "0",
       icon: Target,
       description: "Active projects",
       variant: "success" as const,
     },
     {
       title: "Success Rate",
-      value: "94.2%",
+      value: "0%",
       icon: TrendingUp,
       description: "Scan completion",
       variant: "success" as const,
     },
   ];
 
-  const recentScans = [
-    {
-      id: 1,
-      target: "api.example.com",
-      type: "Full Scan",
-      status: "completed",
-      severity: "high",
-      timestamp: "2 minutes ago",
-      findings: 8,
-    },
-    {
-      id: 2,
-      target: "subdomain.target.com",
-      type: "Port Scan",
-      status: "completed",
-      severity: "medium",
-      timestamp: "15 minutes ago",
-      findings: 3,
-    },
-    {
-      id: 3,
-      target: "webapp.client.org",
-      type: "CMS Detection",
-      status: "running",
-      severity: "low",
-      timestamp: "1 hour ago",
-      findings: 1,
-    },
-    {
-      id: 4,
-      target: "secure.domain.net",
-      type: "Vuln Scan",
-      status: "completed",
-      severity: "critical",
-      timestamp: "3 hours ago",
-      findings: 15,
-    },
-  ];
+  // Replace with actual API call to fetch recent scans
+  const recentScans: any[] = [];
 
-  const activeScans = [
-    {
-      id: 1,
-      target: "new-target.com",
-      type: "Port Scan",
-      progress: 73,
-      eta: "2 min",
-    },
-    {
-      id: 2,
-      target: "webapp.test.io",
-      type: "Vulnerability Assessment",
-      progress: 45,
-      eta: "8 min",
-    },
-  ];
+  // Replace with actual API call to fetch active scans
+  const activeScans: any[] = [];
 
   const quickActions = [
     {
@@ -212,32 +163,48 @@ const Dashboard = () => {
               <CardDescription>Latest security assessments and findings</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentScans.map((scan) => (
-                  <div 
-                    key={scan.id} 
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => handleScanView(scan.target)}
-                  >
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(scan.status)}
-                      <div>
-                        <p className="font-medium text-foreground">{scan.target}</p>
-                        <p className="text-sm text-muted-foreground">{scan.type}</p>
+              {recentScans.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <Activity className="h-12 w-12 text-muted-foreground mb-3" />
+                  <h3 className="font-medium mb-1">No Recent Activity</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Start your first scan to see activity here
+                  </p>
+                  <ScanDialog actionType="Scan New Domain">
+                    <Button variant="outline" size="sm">
+                      <Play className="h-4 w-4 mr-2" />
+                      Start First Scan
+                    </Button>
+                  </ScanDialog>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentScans.map((scan) => (
+                    <div 
+                      key={scan.id} 
+                      className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => handleScanView(scan.target)}
+                    >
+                      <div className="flex items-center gap-3">
+                        {getStatusIcon(scan.status)}
+                        <div>
+                          <p className="font-medium text-foreground">{scan.target}</p>
+                          <p className="text-sm text-muted-foreground">{scan.type}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge className={getSeverityColor(scan.severity)}>
+                          {scan.severity}
+                        </Badge>
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-foreground">{scan.findings} findings</p>
+                          <p className="text-xs text-muted-foreground">{scan.timestamp}</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Badge className={getSeverityColor(scan.severity)}>
-                        {scan.severity}
-                      </Badge>
-                      <div className="text-right">
-                        <p className="text-sm font-medium text-foreground">{scan.findings} findings</p>
-                        <p className="text-xs text-muted-foreground">{scan.timestamp}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -281,22 +248,31 @@ const Dashboard = () => {
                 </CardTitle>
                 <CardDescription>Real-time scan progress</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {activeScans.map((scan) => (
-                  <div key={scan.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-foreground">{scan.target}</p>
-                        <p className="text-sm text-muted-foreground">{scan.type}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium text-primary">{scan.progress}%</p>
-                        <p className="text-xs text-muted-foreground">ETA {scan.eta}</p>
-                      </div>
-                    </div>
-                    <Progress value={scan.progress} className="h-2" />
+              <CardContent>
+                {activeScans.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <Clock className="h-10 w-10 text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">No active scans</p>
                   </div>
-                ))}
+                ) : (
+                  <div className="space-y-4">
+                    {activeScans.map((scan) => (
+                      <div key={scan.id} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-foreground">{scan.target}</p>
+                            <p className="text-sm text-muted-foreground">{scan.type}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-medium text-primary">{scan.progress}%</p>
+                            <p className="text-xs text-muted-foreground">ETA {scan.eta}</p>
+                          </div>
+                        </div>
+                        <Progress value={scan.progress} className="h-2" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
