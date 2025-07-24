@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Target, Shield, AlertTriangle, CheckCircle } from "lucide-react";
@@ -20,8 +19,6 @@ const ScanDialog = ({ actionType, children }: ScanDialogProps) => {
   const [formData, setFormData] = useState({
     target: "",
     scanType: "",
-    project: "",
-    description: "",
     priority: "medium",
   });
 
@@ -48,9 +45,6 @@ const ScanDialog = ({ actionType, children }: ScanDialogProps) => {
     ],
   };
 
-  // Replace this with actual API call to fetch projects
-  const projects: string[] = [];
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -72,8 +66,6 @@ const ScanDialog = ({ actionType, children }: ScanDialogProps) => {
     setFormData({
       target: "",
       scanType: "",
-      project: "",
-      description: "",
       priority: "medium",
     });
   };
@@ -131,22 +123,6 @@ const ScanDialog = ({ actionType, children }: ScanDialogProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="project">Project</Label>
-            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, project: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select project (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((project) => (
-                  <SelectItem key={project} value={project}>
-                    {project}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="priority">Priority</Label>
             <Select 
               value={formData.priority}
@@ -178,17 +154,6 @@ const ScanDialog = ({ actionType, children }: ScanDialogProps) => {
                 </SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Additional notes or specific requirements..."
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              rows={3}
-            />
           </div>
 
           <div className="flex gap-3 pt-4">

@@ -12,8 +12,8 @@ const Navigation = () => {
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/" },
-    { icon: FolderOpen, label: "Projects", path: "/projects", count: 8 },
-    { icon: Activity, label: "Scans", path: "/scans", count: 3 },
+    { icon: FolderOpen, label: "Projects", path: "/projects",  },
+    { icon: Activity, label: "Scans", path: "/scans", },
     { icon: FileText, label: "Reports", path: "/reports" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ];
@@ -36,8 +36,8 @@ const Navigation = () => {
               <Shield className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">CyberScan</h1>
-              <p className="text-xs text-muted-foreground">Professional Pentesting Platform</p>
+              <h1 className="text-xl font-bold text-foreground">WalexScan</h1>
+              <p className="text-xs text-muted-foreground">Professional Pentesting Webapp</p>
             </div>
           </div>
 
@@ -55,11 +55,6 @@ const Navigation = () => {
                 >
                   <IconComponent className="h-4 w-4 mr-2" />
                   {item.label}
-                  {item.count && (
-                    <Badge variant="secondary" className="ml-2 text-xs">
-                      {item.count}
-                    </Badge>
-                  )}
                 </Button>
               );
             })}
@@ -68,11 +63,11 @@ const Navigation = () => {
           {/* User Profile */}
           <div className="flex items-center gap-3">
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-foreground">John Doe</p>
-              <p className="text-xs text-muted-foreground">Senior Pentester</p>
+              <p className="text-sm font-medium text-foreground">Okunola Babatola</p>
+              <p className="text-xs text-muted-foreground">Senior intern</p>
             </div>
             <Avatar>
-              <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>
+              <AvatarFallback className="bg-primary text-primary-foreground">OB</AvatarFallback>
             </Avatar>
           </div>
         </div>
