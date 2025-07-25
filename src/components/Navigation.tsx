@@ -66,9 +66,16 @@ const Navigation = () => {
               <p className="text-sm font-medium text-foreground">Okunola Babatola</p>
               <p className="text-xs text-muted-foreground">Senior intern</p>
             </div>
-            <Avatar>
-              <AvatarFallback className="bg-primary text-primary-foreground">OB</AvatarFallback>
-            </Avatar>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-0 h-auto"
+              onClick={() => handleNavigation("/settings", "Settings")}
+            >
+              <Avatar>
+                <AvatarFallback className="bg-primary text-primary-foreground">OB</AvatarFallback>
+              </Avatar>
+            </Button>
           </div>
         </div>
       </div>

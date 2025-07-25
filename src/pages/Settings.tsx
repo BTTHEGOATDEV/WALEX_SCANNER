@@ -39,9 +39,9 @@ const Settings = () => {
     });
   };
 
- 
- 
- 
+  const handleProfileChange = (field: string, value: string) => {
+    setProfile(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleNotificationChange = (field: string, value: boolean) => {
     setNotifications(prev => ({ ...prev, [field]: value }));

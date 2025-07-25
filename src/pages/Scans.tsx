@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Activity, Play, Pause, RotateCcw, Filter, Calendar, Clock, Target, AlertTriangle } from "lucide-react";
+import { Activity, Play, Pause, RotateCcw, Filter, Calendar, Clock, Target, AlertTriangle, Shield, SearchCheck, Wifi, Database } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
+import ScanDialog from "@/components/ScanDialog";
 
 const Scans = () => {
   const { toast } = useToast();
@@ -71,10 +72,32 @@ const Scans = () => {
               </h1>
               <p className="text-muted-foreground">Monitor and manage security scans</p>
             </div>
-            <Button variant="cyber" size="lg" onClick={handleNewScan}>
-              <Play className="h-4 w-4 mr-2" />
-              New Scan
-            </Button>
+            <div className="flex gap-2">
+              <ScanDialog actionType="Scan New Domain">
+                <Button variant="cyber" size="lg">
+                  <Target className="h-4 w-4 mr-2" />
+                  Scan Domain
+                </Button>
+              </ScanDialog>
+              <ScanDialog actionType="Port Range Check">
+                <Button variant="outline" size="lg">
+                  <Wifi className="h-4 w-4 mr-2" />
+                  Port Scan
+                </Button>
+              </ScanDialog>
+              <ScanDialog actionType="Vulnerability Assessment">
+                <Button variant="outline" size="lg">
+                  <Shield className="h-4 w-4 mr-2" />
+                  Vuln Scan
+                </Button>
+              </ScanDialog>
+              <ScanDialog actionType="SSL/TLS Analysis">
+                <Button variant="outline" size="lg">
+                  <Database className="h-4 w-4 mr-2" />
+                  SSL Check
+                </Button>
+              </ScanDialog>
+            </div>
           </div>
 
           {/* Filters */}
@@ -111,10 +134,20 @@ const Scans = () => {
                 <p className="text-muted-foreground mb-6">
                   {searchTerm ? "No scans match your search criteria." : "Start your first security scan to see results here."}
                 </p>
-                <Button variant="cyber" onClick={handleNewScan}>
-                  <Play className="h-4 w-4 mr-2" />
-                  Start New Scan
-                </Button>
+                <div className="flex gap-2">
+                  <ScanDialog actionType="Scan New Domain">
+                    <Button variant="cyber">
+                      <Target className="h-4 w-4 mr-2" />
+                      Scan Domain
+                    </Button>
+                  </ScanDialog>
+                  <ScanDialog actionType="Port Range Check">
+                    <Button variant="outline">
+                      <Wifi className="h-4 w-4 mr-2" />
+                      Port Scan
+                    </Button>
+                  </ScanDialog>
+                </div>
               </div>
             ) : (
               filteredScans.map((scan) => (
