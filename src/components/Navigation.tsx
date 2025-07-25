@@ -1,9 +1,11 @@
-import { Shield, Home, FolderOpen, Activity, FileText, Settings, User } from "lucide-react";
+import { Shield, Home, FolderOpen, Activity, FileText, Settings, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 const Navigation = () => {
   const { toast } = useToast();
@@ -23,7 +25,27 @@ const Navigation = () => {
     toast({
       title: `Navigating to ${label}`,
       description: `Opening ${label.toLowerCase()} section...`,
+      duration: 2000,
     });
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logged out successfully",
+        description: "You have been signed out of your account",
+        duration: 2000,
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Logout failed",
+        description: "An error occurred while signing out",
+        variant: "destructive",
+        duration: 2000,
+      });
+    }
   };
 
   return (
@@ -66,16 +88,30 @@ const Navigation = () => {
               <p className="text-sm font-medium text-foreground">Okunola Babatola</p>
               <p className="text-xs text-muted-foreground">Senior intern</p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-0 h-auto"
-              onClick={() => handleNavigation("/settings", "Settings")}
-            >
-              <Avatar>
-                <AvatarFallback className="bg-primary text-primary-foreground">OB</AvatarFallback>
-              </Avatar>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-0 h-auto hover:bg-transparent"
+                >
+                  <Avatar className="cursor-pointer">
+                    <AvatarFallback className="bg-primary text-primary-foreground">OB</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => handleNavigation("/settings", "Settings")}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
