@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import VerifyEmail from "./pages/VerifyEmail";
+import VerificationSuccess from "./pages/VerificationSuccess";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
     <Route path="/login" element={<Login />} />
 <Route path="/register" element={<Register />} />
 <Route path="/verify-email" element={<VerifyEmail />} />
+<Route path="/verification-success" element={<VerificationSuccess />} />
   <Route path="*" element={<NotFound />} />
 </Routes>
       </BrowserRouter>
