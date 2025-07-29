@@ -50,7 +50,7 @@ const Login = () => {
               <Shield className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Welcome back to CyberScan</h1>
+          <h1 className="text-2xl font-bold">Welcome back to WalexScan</h1>
           <p className="text-muted-foreground">Sign in to your security dashboard</p>
         </div>
 
