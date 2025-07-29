@@ -27,7 +27,7 @@ const AuthGuard = ({ children, requireAuth = true }: AuthGuardProps) => {
         // If user is authenticated and trying to access login/register, redirect to dashboard
         const currentPath = window.location.pathname;
         if (["/login", "/register", "/"].includes(currentPath)) {
-          navigate("/projects");
+          navigate("/dashboard");
         }
       }
     };
