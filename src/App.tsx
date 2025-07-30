@@ -29,7 +29,7 @@ const App = () => (
           {/* Public routes */}
           <Route path="/" element={
             <AuthGuard requireAuth={false}>
-              <Login />
+              <Landing />
             </AuthGuard>
           } />
           <Route path="/landing" element={

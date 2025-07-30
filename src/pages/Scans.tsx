@@ -13,6 +13,7 @@ const Scans = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
+  const [activeScanType, setActiveScanType] = useState("domain");
 
   // Replace this with actual API call to fetch scans
   const scans: any[] = [];
@@ -74,25 +75,41 @@ const Scans = () => {
             </div>
             <div className="flex gap-2">
               <ScanDialog actionType="Scan New Domain">
-                <Button variant="cyber" size="lg">
+                <Button 
+                  variant={activeScanType === "domain" ? "cyber" : "outline"} 
+                  size="lg"
+                  onClick={() => setActiveScanType("domain")}
+                >
                   <Target className="h-4 w-4 mr-2" />
                   Scan Domain
                 </Button>
               </ScanDialog>
               <ScanDialog actionType="Port Range Check">
-                <Button variant="outline" size="lg">
+                <Button 
+                  variant={activeScanType === "port" ? "cyber" : "outline"} 
+                  size="lg"
+                  onClick={() => setActiveScanType("port")}
+                >
                   <Wifi className="h-4 w-4 mr-2" />
                   Port Scan
                 </Button>
               </ScanDialog>
               <ScanDialog actionType="Vulnerability Assessment">
-                <Button variant="outline" size="lg">
+                <Button 
+                  variant={activeScanType === "vuln" ? "cyber" : "outline"} 
+                  size="lg"
+                  onClick={() => setActiveScanType("vuln")}
+                >
                   <Shield className="h-4 w-4 mr-2" />
                   Vuln Scan
                 </Button>
               </ScanDialog>
               <ScanDialog actionType="SSL/TLS Analysis">
-                <Button variant="outline" size="lg">
+                <Button 
+                  variant={activeScanType === "ssl" ? "cyber" : "outline"} 
+                  size="lg"
+                  onClick={() => setActiveScanType("ssl")}
+                >
                   <Database className="h-4 w-4 mr-2" />
                   SSL Check
                 </Button>
@@ -136,13 +153,19 @@ const Scans = () => {
                 </p>
                 <div className="flex gap-2">
                   <ScanDialog actionType="Scan New Domain">
-                    <Button variant="cyber">
+                    <Button 
+                      variant="cyber"
+                      onClick={() => setActiveScanType("domain")}
+                    >
                       <Target className="h-4 w-4 mr-2" />
                       Scan Domain
                     </Button>
                   </ScanDialog>
                   <ScanDialog actionType="Port Range Check">
-                    <Button variant="outline">
+                    <Button 
+                      variant="outline"
+                      onClick={() => setActiveScanType("port")}
+                    >
                       <Wifi className="h-4 w-4 mr-2" />
                       Port Scan
                     </Button>

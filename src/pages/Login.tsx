@@ -35,7 +35,7 @@ const Login = () => {
         description: "Redirecting to your dashboard...",
         duration: 2000,
       });
-      navigate("/projects");
+      navigate("/dashboard");
     }
     setIsLoading(false);
   };
