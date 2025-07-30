@@ -14,7 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      scan_results: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          result_type: string
+          scan_id: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id?: string
+          result_type: string
+          scan_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          result_type?: string
+          scan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scan_results_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scans: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          estimated_completion: string | null
+          findings_count: number | null
+          id: string
+          priority: string
+          progress: number | null
+          scan_subtype: string | null
+          scan_type: string
+          severity: string | null
+          started_at: string | null
+          status: string
+          target: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          estimated_completion?: string | null
+          findings_count?: number | null
+          id?: string
+          priority?: string
+          progress?: number | null
+          scan_subtype?: string | null
+          scan_type: string
+          severity?: string | null
+          started_at?: string | null
+          status?: string
+          target: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          estimated_completion?: string | null
+          findings_count?: number | null
+          id?: string
+          priority?: string
+          progress?: number | null
+          scan_subtype?: string | null
+          scan_type?: string
+          severity?: string | null
+          started_at?: string | null
+          status?: string
+          target?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

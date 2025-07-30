@@ -6,14 +6,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Target, Shield, AlertTriangle, CheckCircle } from "lucide-react";
 
 interface ScanDialogProps {
   actionType: string;
   children: React.ReactNode;
+  onScanCreated?: () => void;
 }
 
-const ScanDialog = ({ actionType, children }: ScanDialogProps) => {
+const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -45,7 +47,7 @@ const ScanDialog = ({ actionType, children }: ScanDialogProps) => {
     ],
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.target || !formData.scanType) {
@@ -57,17 +59,47 @@ const ScanDialog = ({ actionType, children }: ScanDialogProps) => {
       return;
     }
 
-    toast({
-      title: "Scan Initiated",
-      description: `${actionType} started for ${formData.target}`,
-    });
+    try {
+      const scanTypeMap: Record<string, string> = {
+        "Scan New Domain": "domain",
+        "Port Range Check": "port", 
+        "Vulnerability Assessment": "vulnerability",
+        "SSL/TLS Analysis": "ssl"
+      };
 
-    setIsOpen(false);
-    setFormData({
-      target: "",
-      scanType: "",
-      priority: "medium",
-    });
+      const { data, error } = await supabase.functions.invoke('create-scan', {
+        body: {
+          target: formData.target,
+          scanType: scanTypeMap[actionType],
+          scanSubtype: formData.scanType,
+          priority: formData.priority
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Scan Initiated",
+        description: `${actionType} started for ${formData.target}`,
+      });
+
+      setIsOpen(false);
+      setFormData({
+        target: "",
+        scanType: "",
+        priority: "medium",
+      });
+
+      // Notify parent component to refresh scan list
+      onScanCreated?.();
+
+    } catch (error: any) {
+      toast({
+        title: "Scan Failed",
+        description: error.message || "Failed to create scan",
+        variant: "destructive",
+      });
+    }
   };
 
   const currentScanTypes = scanTypes[actionType as keyof typeof scanTypes] || [];

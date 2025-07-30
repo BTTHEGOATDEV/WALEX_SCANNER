@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Activity, Play, Pause, RotateCcw, Filter, Calendar, Clock, Target, AlertTriangle, Shield, SearchCheck, Wifi, Database } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import ScanDialog from "@/components/ScanDialog";
 
@@ -14,9 +15,32 @@ const Scans = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [activeScanType, setActiveScanType] = useState("domain");
+  const [scans, setScans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Replace this with actual API call to fetch scans
-  const scans: any[] = [];
+  useEffect(() => {
+    fetchScans();
+  }, []);
+
+  const fetchScans = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('scans')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setScans(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch scans",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -74,7 +98,7 @@ const Scans = () => {
               <p className="text-muted-foreground">Monitor and manage security scans</p>
             </div>
             <div className="flex gap-2">
-              <ScanDialog actionType="Scan New Domain">
+              <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
                 <Button 
                   variant={activeScanType === "domain" ? "cyber" : "outline"} 
                   size="lg"
@@ -84,7 +108,7 @@ const Scans = () => {
                   Scan Domain
                 </Button>
               </ScanDialog>
-              <ScanDialog actionType="Port Range Check">
+              <ScanDialog actionType="Port Range Check" onScanCreated={fetchScans}>
                 <Button 
                   variant={activeScanType === "port" ? "cyber" : "outline"} 
                   size="lg"
@@ -94,7 +118,7 @@ const Scans = () => {
                   Port Scan
                 </Button>
               </ScanDialog>
-              <ScanDialog actionType="Vulnerability Assessment">
+              <ScanDialog actionType="Vulnerability Assessment" onScanCreated={fetchScans}>
                 <Button 
                   variant={activeScanType === "vuln" ? "cyber" : "outline"} 
                   size="lg"
@@ -104,7 +128,7 @@ const Scans = () => {
                   Vuln Scan
                 </Button>
               </ScanDialog>
-              <ScanDialog actionType="SSL/TLS Analysis">
+              <ScanDialog actionType="SSL/TLS Analysis" onScanCreated={fetchScans}>
                 <Button 
                   variant={activeScanType === "ssl" ? "cyber" : "outline"} 
                   size="lg"
@@ -152,7 +176,7 @@ const Scans = () => {
                   {searchTerm ? "No scans match your search criteria." : "Start your first security scan to see results here."}
                 </p>
                 <div className="flex gap-2">
-                  <ScanDialog actionType="Scan New Domain">
+                  <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
                     <Button 
                       variant="cyber"
                       onClick={() => setActiveScanType("domain")}
@@ -161,7 +185,7 @@ const Scans = () => {
                       Scan Domain
                     </Button>
                   </ScanDialog>
-                  <ScanDialog actionType="Port Range Check">
+                  <ScanDialog actionType="Port Range Check" onScanCreated={fetchScans}>
                     <Button 
                       variant="outline"
                       onClick={() => setActiveScanType("port")}
@@ -173,7 +197,7 @@ const Scans = () => {
                 </div>
               </div>
             ) : (
-              filteredScans.map((scan) => (
+              scans.map((scan) => (
                 <Card key={scan.id} className="border-border/50 hover:border-primary/50 transition-colors">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -193,20 +217,24 @@ const Scans = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground">{scan.type} • {scan.project}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {scan.scan_type} {scan.scan_subtype ? `• ${scan.scan_subtype}` : ''}
+                          </p>
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              {scan.startTime}
+                              {new Date(scan.created_at).toLocaleDateString()}
                             </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {scan.estimatedCompletion}
-                            </span>
-                            {scan.findings > 0 && (
+                            {scan.estimated_completion && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                ETA: {new Date(scan.estimated_completion).toLocaleTimeString()}
+                              </span>
+                            )}
+                            {scan.findings_count > 0 && (
                               <span className="flex items-center gap-1">
                                 <AlertTriangle className="h-3 w-3" />
-                                {scan.findings} findings
+                                {scan.findings_count} findings
                               </span>
                             )}
                           </div>
@@ -218,9 +246,9 @@ const Scans = () => {
                           <div className="w-32 space-y-1">
                             <div className="flex justify-between text-xs">
                               <span>Progress</span>
-                              <span>{scan.progress}%</span>
+                              <span>{scan.progress || 0}%</span>
                             </div>
-                            <Progress value={scan.progress} className="h-2" />
+                            <Progress value={scan.progress || 0} className="h-2" />
                           </div>
                         )}
                         
