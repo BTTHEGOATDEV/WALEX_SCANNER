@@ -1,25 +1,47 @@
 import { useState, useEffect } from "react";
-import { Activity, Play, Pause, RotateCcw, Filter, Calendar, Clock, Target, AlertTriangle, Shield, SearchCheck, Wifi, Database } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import Navigation from "@/components/Navigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi } from "lucide-react";
 import ScanDialog from "@/components/ScanDialog";
+import ScanDetailsDialog from "@/components/ScanDetailsDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import Navigation from "@/components/Navigation";
 
 const Scans = () => {
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [activeScanType, setActiveScanType] = useState("domain");
+  const [activeTab, setActiveTab] = useState("domain");
   const [scans, setScans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedScanId, setSelectedScanId] = useState<string | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   useEffect(() => {
     fetchScans();
+    
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('scans-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'scans'
+        },
+        () => {
+          fetchScans(); // Refresh when scans change
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchScans = async () => {
@@ -31,7 +53,8 @@ const Scans = () => {
 
       if (error) throw error;
       setScans(data || []);
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error fetching scans:', error);
       toast({
         title: "Error",
         description: "Failed to fetch scans",
@@ -42,47 +65,74 @@ const Scans = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "running": return "bg-primary text-primary-foreground animate-pulse";
-      case "completed": return "bg-success text-success-foreground";
-      case "queued": return "bg-warning text-warning-foreground";
-      case "failed": return "bg-critical text-critical-foreground";
-      default: return "bg-muted text-muted-foreground";
+  const handleDeleteScan = async (scanId: string) => {
+    try {
+      const { error } = await supabase
+        .from('scans')
+        .delete()
+        .eq('id', scanId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Scan Deleted",
+        description: "Scan has been successfully deleted",
+      });
+
+      fetchScans(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting scan:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete scan",
+        variant: "destructive",
+      });
     }
   };
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case "critical": return "bg-critical text-critical-foreground";
-      case "high": return "bg-cyber-red text-cyber-red-foreground";
-      case "medium": return "bg-warning text-warning-foreground";
-      case "low": return "bg-success text-success-foreground";
-      default: return "bg-muted text-muted-foreground";
+  const handleViewDetails = (scanId: string) => {
+    setSelectedScanId(scanId);
+    setIsDetailsOpen(true);
+  };
+
+  const scanCategories = [
+    {
+      id: "domain",
+      label: "Domain Scanning",
+      icon: Target,
+      description: "Comprehensive domain and subdomain analysis",
+      color: "text-primary",
+      types: ["domain"]
+    },
+    {
+      id: "port",
+      label: "Port Scanning",
+      icon: Wifi,
+      description: "Network port discovery and enumeration",
+      color: "text-success",
+      types: ["port"]
+    },
+    {
+      id: "vulnerability",
+      label: "Vulnerability Assessment",
+      icon: Shield,
+      description: "Security weakness identification",
+      color: "text-warning",
+      types: ["vulnerability"]
+    },
+    {
+      id: "ssl",
+      label: "SSL/TLS Analysis",
+      icon: Lock,
+      description: "Certificate and encryption analysis",
+      color: "text-info",
+      types: ["ssl"]
     }
-  };
+  ];
 
-  const handleScanAction = (action: string, scanId: number) => {
-    toast({
-      title: `Scan ${action}`,
-      description: `${action} scan ID: ${scanId}`,
-    });
+  const getFilteredScans = (types: string[]) => {
+    return scans.filter(scan => types.includes(scan.scan_type));
   };
-
-  const handleNewScan = () => {
-    toast({
-      title: "New Scan",
-      description: "Opening scan configuration wizard...",
-    });
-  };
-
-  const filteredScans = scans.filter(scan => {
-    const matchesSearch = scan.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         scan.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         scan.project.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filter === "all" || scan.status === filter;
-    return matchesSearch && matchesFilter;
-  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,199 +143,219 @@ const Scans = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
-                Scans
+                Security Scans
               </h1>
-              <p className="text-muted-foreground">Monitor and manage security scans</p>
+              <p className="text-muted-foreground">Launch and monitor security assessments</p>
             </div>
             <div className="flex gap-2">
               <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
-                <Button 
-                  variant={activeScanType === "domain" ? "cyber" : "outline"} 
-                  size="lg"
-                  onClick={() => setActiveScanType("domain")}
-                >
+                <Button variant="cyber" size="lg">
                   <Target className="h-4 w-4 mr-2" />
-                  Scan Domain
-                </Button>
-              </ScanDialog>
-              <ScanDialog actionType="Port Range Check" onScanCreated={fetchScans}>
-                <Button 
-                  variant={activeScanType === "port" ? "cyber" : "outline"} 
-                  size="lg"
-                  onClick={() => setActiveScanType("port")}
-                >
-                  <Wifi className="h-4 w-4 mr-2" />
-                  Port Scan
-                </Button>
-              </ScanDialog>
-              <ScanDialog actionType="Vulnerability Assessment" onScanCreated={fetchScans}>
-                <Button 
-                  variant={activeScanType === "vuln" ? "cyber" : "outline"} 
-                  size="lg"
-                  onClick={() => setActiveScanType("vuln")}
-                >
-                  <Shield className="h-4 w-4 mr-2" />
-                  Vuln Scan
-                </Button>
-              </ScanDialog>
-              <ScanDialog actionType="SSL/TLS Analysis" onScanCreated={fetchScans}>
-                <Button 
-                  variant={activeScanType === "ssl" ? "cyber" : "outline"} 
-                  size="lg"
-                  onClick={() => setActiveScanType("ssl")}
-                >
-                  <Database className="h-4 w-4 mr-2" />
-                  SSL Check
+                  New Scan
                 </Button>
               </ScanDialog>
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1 max-w-md">
-              <Target className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search scans..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex gap-2">
-              {["all", "running", "completed", "queued", "failed"].map((status) => (
-                <Button
-                  key={status}
-                  variant={filter === status ? "cyber" : "outline"}
-                  size="sm"
-                  onClick={() => setFilter(status)}
-                >
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </Button>
-              ))}
-            </div>
+          {/* Quick Action Buttons */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
+              <Card className="cursor-pointer hover:border-primary/50 transition-colors">
+                <CardContent className="p-4 text-center">
+                  <Target className="h-8 w-8 mx-auto mb-2 text-primary" />
+                  <h3 className="font-semibold">Domain Scan</h3>
+                  <p className="text-xs text-muted-foreground">Analyze domains & subdomains</p>
+                </CardContent>
+              </Card>
+            </ScanDialog>
+            
+            <ScanDialog actionType="Port Range Check" onScanCreated={fetchScans}>
+              <Card className="cursor-pointer hover:border-primary/50 transition-colors">
+                <CardContent className="p-4 text-center">
+                  <Wifi className="h-8 w-8 mx-auto mb-2 text-success" />
+                  <h3 className="font-semibold">Port Scan</h3>
+                  <p className="text-xs text-muted-foreground">Network port discovery</p>
+                </CardContent>
+              </Card>
+            </ScanDialog>
+            
+            <ScanDialog actionType="Vulnerability Assessment" onScanCreated={fetchScans}>
+              <Card className="cursor-pointer hover:border-primary/50 transition-colors">
+                <CardContent className="p-4 text-center">
+                  <Shield className="h-8 w-8 mx-auto mb-2 text-warning" />
+                  <h3 className="font-semibold">Vuln Scan</h3>
+                  <p className="text-xs text-muted-foreground">Security assessment</p>
+                </CardContent>
+              </Card>
+            </ScanDialog>
+            
+            <ScanDialog actionType="SSL/TLS Analysis" onScanCreated={fetchScans}>
+              <Card className="cursor-pointer hover:border-primary/50 transition-colors">
+                <CardContent className="p-4 text-center">
+                  <Database className="h-8 w-8 mx-auto mb-2 text-info" />
+                  <h3 className="font-semibold">SSL Check</h3>
+                  <p className="text-xs text-muted-foreground">Certificate analysis</p>
+                </CardContent>
+              </Card>
+            </ScanDialog>
           </div>
 
-          {/* Scans List */}
-          <div className="space-y-4">
-            {filteredScans.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Target className="h-16 w-16 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Scans Found</h3>
-                <p className="text-muted-foreground mb-6">
-                  {searchTerm ? "No scans match your search criteria." : "Start your first security scan to see results here."}
-                </p>
-                <div className="flex gap-2">
-                  <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
-                    <Button 
-                      variant="cyber"
-                      onClick={() => setActiveScanType("domain")}
-                    >
-                      <Target className="h-4 w-4 mr-2" />
-                      Scan Domain
-                    </Button>
-                  </ScanDialog>
-                  <ScanDialog actionType="Port Range Check" onScanCreated={fetchScans}>
-                    <Button 
-                      variant="outline"
-                      onClick={() => setActiveScanType("port")}
-                    >
-                      <Wifi className="h-4 w-4 mr-2" />
-                      Port Scan
-                    </Button>
-                  </ScanDialog>
-                </div>
-              </div>
-            ) : (
-              scans.map((scan) => (
-                <Card key={scan.id} className="border-border/50 hover:border-primary/50 transition-colors">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Activity className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-foreground">{scan.target}</h3>
-                            <Badge className={getStatusColor(scan.status)}>
-                              {scan.status}
-                            </Badge>
-                            {scan.severity !== "none" && (
-                              <Badge variant="outline" className={getSeverityColor(scan.severity)}>
-                                {scan.severity}
-                              </Badge>
+          {/* Scans Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              {scanCategories.map((category) => {
+                const IconComponent = category.icon;
+                return (
+                  <TabsTrigger key={category.id} value={category.id} className="flex items-center gap-2">
+                    <IconComponent className="h-4 w-4" />
+                    {category.label}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+
+            {scanCategories.map((category) => {
+              const filteredScans = getFilteredScans(category.types);
+              const IconComponent = category.icon;
+              
+              return (
+                <TabsContent key={category.id} value={category.id} className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <IconComponent className={`h-5 w-5 ${category.color}`} />
+                        {category.label}
+                      </CardTitle>
+                      <CardDescription>{category.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Target</TableHead>
+                              <TableHead>Type</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Severity</TableHead>
+                              <TableHead>Created</TableHead>
+                              <TableHead>Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {loading ? (
+                              <TableRow>
+                                <TableCell colSpan={6} className="text-center py-8">
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                                  <p className="text-sm text-muted-foreground mt-2">Loading scans...</p>
+                                </TableCell>
+                              </TableRow>
+                            ) : filteredScans.length === 0 ? (
+                              <TableRow>
+                                <TableCell colSpan={6} className="text-center py-8">
+                                  <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                  <p className="text-muted-foreground">No scans found for this category.</p>
+                                  <p className="text-sm text-muted-foreground">Start your first scan using the buttons above.</p>
+                                </TableCell>
+                              </TableRow>
+                            ) : (
+                              filteredScans.map((scan) => (
+                                <TableRow key={scan.id}>
+                                  <TableCell className="font-mono text-sm">{scan.target}</TableCell>
+                                  <TableCell>
+                                    <div className="flex flex-col gap-1">
+                                      <Badge variant="outline">{scan.scan_type}</Badge>
+                                      {scan.scan_subtype && <Badge variant="secondary" className="text-xs">{scan.scan_subtype}</Badge>}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge 
+                                      variant={
+                                        scan.status === 'completed' ? 'default' : 
+                                        scan.status === 'running' ? 'secondary' : 
+                                        scan.status === 'failed' ? 'destructive' : 'outline'
+                                      }
+                                    >
+                                      {scan.status}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge 
+                                      variant="outline"
+                                      className={
+                                        scan.severity === 'critical' ? 'bg-critical text-critical-foreground' :
+                                        scan.severity === 'high' ? 'bg-cyber-red text-cyber-red-foreground' :
+                                        scan.severity === 'medium' ? 'bg-warning text-warning-foreground' :
+                                        scan.severity === 'low' ? 'bg-info text-info-foreground' :
+                                        'bg-success text-success-foreground'
+                                      }
+                                    >
+                                      {scan.severity}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-sm text-muted-foreground">
+                                    {new Date(scan.created_at).toLocaleDateString()}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleViewDetails(scan.id)}
+                                        className="h-8 w-8 p-0"
+                                      >
+                                        <Eye className="h-4 w-4" />
+                                      </Button>
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                          >
+                                            <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Delete Scan</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                              Are you sure you want to delete this scan? This action cannot be undone.
+                                            </AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction
+                                              onClick={() => handleDeleteScan(scan.id)}
+                                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            >
+                                              Delete
+                                            </AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))
                             )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {scan.scan_type} {scan.scan_subtype ? `• ${scan.scan_subtype}` : ''}
-                          </p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {new Date(scan.created_at).toLocaleDateString()}
-                            </span>
-                            {scan.estimated_completion && (
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                ETA: {new Date(scan.estimated_completion).toLocaleTimeString()}
-                              </span>
-                            )}
-                            {scan.findings_count > 0 && (
-                              <span className="flex items-center gap-1">
-                                <AlertTriangle className="h-3 w-3" />
-                                {scan.findings_count} findings
-                              </span>
-                            )}
-                          </div>
-                        </div>
+                          </TableBody>
+                        </Table>
                       </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              );
+            })}
+          </Tabs>
 
-                      <div className="flex items-center gap-3">
-                        {scan.status === "running" && (
-                          <div className="w-32 space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span>Progress</span>
-                              <span>{scan.progress || 0}%</span>
-                            </div>
-                            <Progress value={scan.progress || 0} className="h-2" />
-                          </div>
-                        )}
-                        
-                        <div className="flex gap-2">
-                          {scan.status === "running" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleScanAction("Paused", scan.id)}
-                            >
-                              <Pause className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {(scan.status === "completed" || scan.status === "failed") && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleScanAction("Restarted", scan.id)}
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleScanAction("Viewed", scan.id)}
-                          >
-                            View Details
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
+          <ScanDetailsDialog
+            scanId={selectedScanId}
+            isOpen={isDetailsOpen}
+            onClose={() => {
+              setIsDetailsOpen(false);
+              setSelectedScanId(null);
+            }}
+          />
         </div>
       </div>
     </div>
