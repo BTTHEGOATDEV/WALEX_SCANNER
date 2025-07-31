@@ -23,8 +23,14 @@ serve(async (req) => {
       );
     }
 
-    // Create Supabase client with user context
-    const supabaseClient = createClient(
+    // Create Supabase client with service role for database operations
+    const supabaseServiceClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Create client for user authentication
+    const supabaseAuthClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
@@ -32,7 +38,7 @@ serve(async (req) => {
     // Get authenticated user
     const authHeader = req.headers.get('Authorization')!;
     const token = authHeader.replace('Bearer ', '');
-    const { data, error: authError } = await supabaseClient.auth.getUser(token);
+    const { data, error: authError } = await supabaseAuthClient.auth.getUser(token);
     
     if (authError || !data.user) {
       return new Response(
@@ -43,8 +49,8 @@ serve(async (req) => {
 
     const userId = data.user.id;
 
-    // Create scan entry
-    const { data: scan, error: insertError } = await supabaseClient
+    // Create scan entry using service role client
+    const { data: scan, error: insertError } = await supabaseServiceClient
       .from('scans')
       .insert({
         user_id: userId,

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Target, Shield, AlertTriangle, CheckCircle } from "lucide-react";
+import PaidPlanModal from "./PaidPlanModal";
 
 interface ScanDialogProps {
   actionType: string;
@@ -18,6 +19,8 @@ interface ScanDialogProps {
 const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [isPaidModalOpen, setIsPaidModalOpen] = useState(false);
+  const [paidFeatureName, setPaidFeatureName] = useState("");
   const [formData, setFormData] = useState({
     target: "",
     scanType: "",
@@ -26,25 +29,31 @@ const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) =>
 
   const scanTypes = {
     "Scan New Domain": [
-      { value: "full", label: "Full Security Scan", icon: Target },
-      { value: "basic", label: "Basic Vulnerability Scan", icon: Shield },
-      { value: "deep", label: "Deep Penetration Test", icon: AlertTriangle },
+      { value: "full", label: "Full Security Scan", icon: Target, isPaid: true },
+      { value: "basic", label: "Basic Vulnerability Scan", icon: Shield, isPaid: false },
+      { value: "deep", label: "Deep Penetration Test", icon: AlertTriangle, isPaid: true },
     ],
     "Port Range Check": [
-      { value: "tcp", label: "TCP Port Scan", icon: Shield },
-      { value: "udp", label: "UDP Port Scan", icon: Shield },
-      { value: "stealth", label: "Stealth Port Scan", icon: Target },
+      { value: "tcp", label: "TCP Port Scan", icon: Shield, isPaid: false },
+      { value: "udp", label: "UDP Port Scan", icon: Shield, isPaid: true },
+      { value: "stealth", label: "Stealth Port Scan", icon: Target, isPaid: true },
     ],
     "Vulnerability Assessment": [
-      { value: "web", label: "Web Application Scan", icon: AlertTriangle },
-      { value: "network", label: "Network Vulnerability Scan", icon: Shield },
-      { value: "database", label: "Database Security Scan", icon: Target },
+      { value: "web", label: "Web Application Scan", icon: AlertTriangle, isPaid: true },
+      { value: "network", label: "Network Vulnerability Scan", icon: Shield, isPaid: true },
+      { value: "database", label: "Database Security Scan", icon: Target, isPaid: true },
     ],
     "SSL/TLS Analysis": [
-      { value: "cert", label: "Certificate Analysis", icon: CheckCircle },
-      { value: "config", label: "Configuration Review", icon: Shield },
-      { value: "compliance", label: "Compliance Check", icon: Target },
+      { value: "cert", label: "Certificate Analysis", icon: CheckCircle, isPaid: true },
+      { value: "config", label: "Configuration Review", icon: Shield, isPaid: true },
+      { value: "compliance", label: "Compliance Check", icon: Target, isPaid: true },
     ],
+  };
+
+  const isPaidFeature = (scanType: string) => {
+    const currentTypes = scanTypes[actionType as keyof typeof scanTypes] || [];
+    const selectedType = currentTypes.find(type => type.value === scanType);
+    return selectedType?.isPaid || false;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,6 +65,15 @@ const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) =>
         description: "Please fill in all required fields.",
         variant: "destructive",
       });
+      return;
+    }
+
+    // Check if this is a paid feature
+    if (isPaidFeature(formData.scanType)) {
+      const currentTypes = scanTypes[actionType as keyof typeof scanTypes] || [];
+      const selectedType = currentTypes.find(type => type.value === formData.scanType);
+      setPaidFeatureName(selectedType?.label || "Premium Feature");
+      setIsPaidModalOpen(true);
       return;
     }
 
@@ -146,6 +164,7 @@ const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) =>
                       <div className="flex items-center gap-2">
                         <IconComponent className="h-4 w-4" />
                         {type.label}
+                        {type.isPaid && <Badge variant="outline" className="bg-warning text-warning-foreground text-xs">Pro</Badge>}
                       </div>
                     </SelectItem>
                   );
@@ -198,6 +217,12 @@ const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) =>
           </div>
         </form>
       </DialogContent>
+      
+      <PaidPlanModal 
+        isOpen={isPaidModalOpen}
+        onClose={() => setIsPaidModalOpen(false)}
+        featureName={paidFeatureName}
+      />
     </Dialog>
   );
 };
