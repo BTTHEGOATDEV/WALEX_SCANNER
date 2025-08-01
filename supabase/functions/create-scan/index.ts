@@ -72,14 +72,24 @@ serve(async (req) => {
       );
     }
 
-    // Start scan execution asynchronously
-    EdgeRuntime.waitUntil(executeScan(scan.id, scanType, scanSubtype, target));
+    // Check if PYTHON_SCANNER_URL is set for real scanning
+    const pythonScannerUrl = Deno.env.get('PYTHON_SCANNER_URL');
+    
+    if (pythonScannerUrl) {
+      // Use real Python nmap scanning
+      EdgeRuntime.waitUntil(executeRealScan(scan.id, scanType, scanSubtype, target, pythonScannerUrl));
+    } else {
+      // Fall back to mock scanning for development
+      console.log('PYTHON_SCANNER_URL not set, using mock scanning');
+      EdgeRuntime.waitUntil(executeMockScan(scan.id, scanType, scanSubtype, target));
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         scanId: scan.id,
-        message: 'Scan created and queued successfully' 
+        message: 'Scan created and queued successfully',
+        realScanning: !!pythonScannerUrl
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -93,7 +103,67 @@ serve(async (req) => {
   }
 });
 
-async function executeScan(scanId: string, scanType: string, scanSubtype: string, target: string) {
+async function executeRealScan(scanId: string, scanType: string, scanSubtype: string, target: string, pythonScannerUrl: string) {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+
+  try {
+    // Update status to running
+    await supabase
+      .from('scans')
+      .update({ 
+        status: 'running', 
+        started_at: new Date().toISOString(),
+        progress: 10 
+      })
+      .eq('id', scanId);
+
+    console.log(`Starting real scan ${scanId} for ${target} using Python scanner`);
+
+    // Prepare callback URL for Python scanner to report results
+    const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/receive-scan-results`;
+
+    // Call Python scanner service
+    const scannerResponse = await fetch(`${pythonScannerUrl}/scan`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        scan_id: scanId,
+        target,
+        scan_type: scanType,
+        scan_subtype: scanSubtype,
+        priority: 'medium',
+        callback_url: callbackUrl
+      })
+    });
+
+    if (!scannerResponse.ok) {
+      throw new Error(`Scanner service responded with status: ${scannerResponse.status}`);
+    }
+
+    const scannerResult = await scannerResponse.json();
+    console.log('Real scanner initiated:', scannerResult);
+
+  } catch (error) {
+    console.error('Real scan execution error:', error);
+    
+    // Update scan as failed
+    await supabase
+      .from('scans')
+      .update({ 
+        status: 'failed',
+        completed_at: new Date().toISOString(),
+        error_message: `Real scan failed: ${error.message}`
+      })
+      .eq('id', scanId);
+  }
+}
+
+async function executeMockScan(scanId: string, scanType: string, scanSubtype: string, target: string) {
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL') ?? '',
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''

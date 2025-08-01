@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  nmap-scanner:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    
+    # For production, you might want to add:
+    # volumes:
+    #   - ./logs:/app/logs
+    # networks:
+    #   - scanner-network
+
+# networks:
+#   scanner-network:
+#     driver: bridge
