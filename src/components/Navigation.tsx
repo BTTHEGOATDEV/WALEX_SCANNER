@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Navigation = () => {
   const { toast } = useToast();
@@ -82,8 +83,9 @@ const Navigation = () => {
             })}
           </div>
 
-          {/* User Profile */}
+          {/* Theme Toggle & User Profile */}
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-foreground">Okunola Babatola</p>
               <p className="text-xs text-muted-foreground">Senior intern</p>
