@@ -9,9 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
+import { useTheme } from "@/components/ThemeProvider";
 
 const Settings = () => {
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState({
     name: "Okunola Babatola",
     email: "walex.com",
@@ -306,9 +308,30 @@ const Settings = () => {
                       <Label>Theme</Label>
                       <p className="text-sm text-muted-foreground mb-3">Choose your preferred color theme</p>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Light</Button>
-                        <Button variant="cyber" size="sm">Dark</Button>
-                        <Button variant="outline" size="sm">Auto</Button>
+                        <Button 
+                          variant={theme === "light" ? "cyber" : "outline"} 
+                          size="sm"
+                          onClick={() => setTheme("light")}
+                          className="transition-all duration-200"
+                        >
+                          Light
+                        </Button>
+                        <Button 
+                          variant={theme === "dark" ? "cyber" : "outline"} 
+                          size="sm"
+                          onClick={() => setTheme("dark")}
+                          className="transition-all duration-200"
+                        >
+                          Dark
+                        </Button>
+                        <Button 
+                          variant={theme === "system" ? "cyber" : "outline"} 
+                          size="sm"
+                          onClick={() => setTheme("system")}
+                          className="transition-all duration-200"
+                        >
+                          Auto
+                        </Button>
                       </div>
                     </div>
 
