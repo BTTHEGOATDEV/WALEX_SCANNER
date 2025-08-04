@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi } from "lucide-react";
+import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi, Settings } from "lucide-react";
 import ScanDialog from "@/components/ScanDialog";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
+import ScannerConfigDialog from "@/components/ScannerConfigDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
@@ -19,6 +20,7 @@ const Scans = () => {
   const [loading, setLoading] = useState(true);
   const [selectedScanId, setSelectedScanId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [showScannerConfig, setShowScannerConfig] = useState(false);
 
   useEffect(() => {
     fetchScans();
@@ -148,6 +150,14 @@ const Scans = () => {
               <p className="text-muted-foreground">Launch and monitor security assessments</p>
             </div>
             <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => setShowScannerConfig(true)}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Scanner Setup
+              </Button>
               <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
                 <Button variant="cyber" size="lg">
                   <Target className="h-4 w-4 mr-2" />
@@ -355,6 +365,11 @@ const Scans = () => {
               setIsDetailsOpen(false);
               setSelectedScanId(null);
             }}
+          />
+
+          <ScannerConfigDialog
+            isOpen={showScannerConfig}
+            onClose={() => setShowScannerConfig(false)}
           />
         </div>
       </div>
