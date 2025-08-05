@@ -198,22 +198,12 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
   };
 
   return (
-    <Dialog open={true} onOpenChange={skipGuide}>
+    <Dialog open={true} onOpenChange={() => {}}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-lg font-semibold">
-              {steps[currentStep].title}
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={skipGuide}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-lg font-semibold">
+            {steps[currentStep].title}
+          </DialogTitle>
           <p className="text-sm text-muted-foreground">
             {steps[currentStep].description}
           </p>

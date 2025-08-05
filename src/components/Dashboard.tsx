@@ -49,10 +49,14 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch recent scans
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch recent scans for the authenticated user
       const { data: scans, error: scansError } = await supabase
         .from('scans')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
 

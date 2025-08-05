@@ -12,6 +12,9 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [company, setCompany] = useState("");
+  const [role, setRole] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,17 +50,31 @@ const Register = () => {
       email, 
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+        data: {
+          full_name: fullName,
+          company: company,
+          role: role
+        }
       }
     });
 
     if (error) {
-      toast({
-        title: "Registration failed",
-        description: error.message,
-        variant: "destructive",
-        duration: 2000,
-      });
+      if (error.message.includes("already registered")) {
+        toast({
+          title: "Account already exists",
+          description: "An account with this email already exists. Please sign in instead.",
+          variant: "destructive",
+          duration: 3000,
+        });
+      } else {
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+          duration: 2000,
+        });
+      }
     } else {
       toast({
         title: "Registration successful!",
@@ -95,6 +112,41 @@ const Register = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleRegister} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="company">Company</Label>
+                  <Input
+                    id="company"
+                    type="text"
+                    placeholder="Your company"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Input
+                    id="role"
+                    type="text"
+                    placeholder="Your role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

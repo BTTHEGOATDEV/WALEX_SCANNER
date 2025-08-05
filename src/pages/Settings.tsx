@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings as SettingsIcon, User, Bell, Shield, Database, Key, Palette, Monitor } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,10 +16,10 @@ const Settings = () => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState({
-    name: "Okunola Babatola",
-    email: "walex.com",
-    role: "Senior Pentester",
-    company: "Walex Inc.",
+    name: "",
+    email: "",
+    role: "",
+    company: "",
   });
 
   const [notifications, setNotifications] = useState({
@@ -34,11 +35,68 @@ const Settings = () => {
     passwordExpiry: "90",
   });
 
-  const handleSave = (section: string) => {
-    toast({
-      title: "Settings Updated",
-      description: `${section} settings have been saved successfully.`,
-    });
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  const loadUserProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      setProfile(prev => ({ ...prev, email: user.email || "" }));
+
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('full_name, company, role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (userProfile) {
+        setProfile(prev => ({
+          ...prev,
+          name: userProfile.full_name || "",
+          company: userProfile.company || "",
+          role: userProfile.role || ""
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  };
+
+  const handleSave = async (section: string) => {
+    if (section === "Profile") {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        await supabase
+          .from('profiles')
+          .upsert({
+            user_id: user.id,
+            full_name: profile.name,
+            company: profile.company,
+            role: profile.role
+          });
+
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been saved successfully.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to save profile. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Settings Updated",
+        description: `${section} settings have been saved successfully.`,
+      });
+    }
   };
 
   const handleProfileChange = (field: string, value: string) => {
