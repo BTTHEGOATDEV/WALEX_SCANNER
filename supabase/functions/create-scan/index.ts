@@ -75,12 +75,15 @@ serve(async (req) => {
     // Check if PYTHON_SCANNER_URL is set for real scanning
     const pythonScannerUrl = Deno.env.get('PYTHON_SCANNER_URL');
     
-    if (pythonScannerUrl) {
+    console.log('PYTHON_SCANNER_URL environment variable:', pythonScannerUrl);
+    
+    if (pythonScannerUrl && pythonScannerUrl !== 'PYTHON_SCANNER_URL') {
       // Use real Python nmap scanning
+      console.log(`Using real scanning with URL: ${pythonScannerUrl}`);
       EdgeRuntime.waitUntil(executeRealScan(scan.id, scanType, scanSubtype, target, pythonScannerUrl));
     } else {
       // Fall back to mock scanning for development
-      console.log('PYTHON_SCANNER_URL not set, using mock scanning');
+      console.log('PYTHON_SCANNER_URL not properly set, using mock scanning');
       EdgeRuntime.waitUntil(executeMockScan(scan.id, scanType, scanSubtype, target));
     }
 
@@ -125,8 +128,14 @@ async function executeRealScan(scanId: string, scanType: string, scanSubtype: st
     // Prepare callback URL for Python scanner to report results
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/receive-scan-results`;
 
+    // Ensure URL doesn't have trailing slash
+    const cleanUrl = pythonScannerUrl.endsWith('/') ? pythonScannerUrl.slice(0, -1) : pythonScannerUrl;
+    const scanUrl = `${cleanUrl}/scan`;
+    
+    console.log(`Calling Python scanner at: ${scanUrl}`);
+    
     // Call Python scanner service
-    const scannerResponse = await fetch(`${pythonScannerUrl}/scan`, {
+    const scannerResponse = await fetch(scanUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
