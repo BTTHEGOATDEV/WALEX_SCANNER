@@ -15,7 +15,7 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
 
   const steps = [
     {
-      title: "Welcome to CyberScan",
+      title: "Welcome to WalexScan",
       description: "Your comprehensive penetration testing platform",
       route: "/",
       content: (
@@ -24,7 +24,7 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
             <Target className="h-8 w-8 text-white" />
           </div>
           <p className="text-muted-foreground">
-            CyberScan helps you manage security assessments, track vulnerabilities, and monitor your digital assets with ease.
+            WalexScan helps you manage security assessments, track vulnerabilities, and monitor your digital assets with ease.
           </p>
           <div className="bg-muted/50 p-4 rounded-lg">
             <p className="text-sm font-medium">🚀 Getting Started</p>
@@ -160,7 +160,7 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Personalize your CyberScan experience and configure advanced settings.
+                Personalize your WalexScan experience and configure advanced settings.
               </p>
             </CardContent>
           </Card>
@@ -198,9 +198,17 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
   };
 
   return (
-    <Dialog open={true} onOpenChange={() => {}}>
+    <Dialog open={true} onOpenChange={onComplete}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={skipGuide}
+            className="absolute right-4 top-4 p-2"
+          >
+            <X className="h-4 w-4" />
+          </Button>
           <DialogTitle className="text-lg font-semibold">
             {steps[currentStep].title}
           </DialogTitle>
@@ -229,6 +237,13 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
             <Button
               variant="ghost"
               size="sm"
+              onClick={skipGuide}
+            >
+              Skip Guide
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={prevStep}
               disabled={currentStep === 0}
             >
@@ -236,7 +251,7 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
               Back
             </Button>
             <Button
-              variant="cyber"
+              variant="default"
               size="sm"
               onClick={nextStep}
             >
