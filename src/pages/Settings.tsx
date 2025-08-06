@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import { useTheme } from "@/components/ThemeProvider";
@@ -15,6 +16,7 @@ import { useTheme } from "@/components/ThemeProvider";
 const Settings = () => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -130,6 +132,10 @@ const Settings = () => {
 
   const handleSecurityChange = (field: string, value: string | boolean) => {
     setSecurity(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleComingSoon = () => {
+    setShowComingSoon(true);
   };
 
   return (
@@ -419,8 +425,8 @@ const Settings = () => {
                       <p className="text-sm text-muted-foreground mb-3">Select your preferred language</p>
                       <div className="flex gap-2">
                         <Button variant="cyber" size="sm">English</Button>
-                        <Button variant="outline" size="sm">Spanish</Button>
-                        <Button variant="outline" size="sm">French</Button>
+                        <Button variant="outline" size="sm" onClick={handleComingSoon}>Spanish</Button>
+                        <Button variant="outline" size="sm" onClick={handleComingSoon}>French</Button>
                       </div>
                     </div>
 
@@ -428,10 +434,10 @@ const Settings = () => {
                       <Label>Data Retention</Label>
                       <p className="text-sm text-muted-foreground mb-3">How long to keep scan data</p>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">30 days</Button>
-                        <Button variant="outline" size="sm">90 days</Button>
+                        <Button variant="outline" size="sm" onClick={handleComingSoon}>30 days</Button>
+                        <Button variant="outline" size="sm" onClick={handleComingSoon}>90 days</Button>
                         <Button variant="cyber" size="sm">1 year</Button>
-                        <Button variant="outline" size="sm">Forever</Button>
+                        <Button variant="outline" size="sm" onClick={handleComingSoon}>Forever</Button>
                       </div>
                     </div>
                   </div>
@@ -445,6 +451,23 @@ const Settings = () => {
           </Tabs>
         </div>
       </div>
+
+      {/* Coming Soon Modal */}
+      <Dialog open={showComingSoon} onOpenChange={setShowComingSoon}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Coming Soon!</DialogTitle>
+            <DialogDescription className="text-center py-4">
+              This feature is currently under development and will be available in a future update.
+              <br /><br />
+              Stay tuned for more exciting features!
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={() => setShowComingSoon(false)} className="w-full">
+            Got it
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
