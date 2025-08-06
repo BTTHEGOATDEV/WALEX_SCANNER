@@ -128,11 +128,20 @@ async function executeRealScan(scanId: string, scanType: string, scanSubtype: st
     // Prepare callback URL for Python scanner to report results
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/receive-scan-results`;
 
-    // Ensure URL doesn't have trailing slash
-    const cleanUrl = pythonScannerUrl.endsWith('/') ? pythonScannerUrl.slice(0, -1) : pythonScannerUrl;
+    // Clean URL and ensure proper endpoint construction
+    let cleanUrl = pythonScannerUrl.trim();
+    // Remove trailing slashes
+    while (cleanUrl.endsWith('/')) {
+      cleanUrl = cleanUrl.slice(0, -1);
+    }
+    // Ensure we have a proper base URL
+    if (!cleanUrl.startsWith('http')) {
+      cleanUrl = `https://${cleanUrl}`;
+    }
     const scanUrl = `${cleanUrl}/scan`;
     
-    console.log(`Calling Python scanner at: ${scanUrl}`);
+    console.log(`Cleaned base URL: ${cleanUrl}`);
+    console.log(`Full scan endpoint: ${scanUrl}`);
     
     // Call Python scanner service
     const scannerResponse = await fetch(scanUrl, {
