@@ -198,17 +198,9 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
   };
 
   return (
-    <Dialog open={true} onOpenChange={onComplete}>
+    <Dialog open={true} onOpenChange={() => {}}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={skipGuide}
-            className="absolute right-4 top-4 p-2"
-          >
-            <X className="h-4 w-4" />
-          </Button>
           <DialogTitle className="text-lg font-semibold">
             {steps[currentStep].title}
           </DialogTitle>

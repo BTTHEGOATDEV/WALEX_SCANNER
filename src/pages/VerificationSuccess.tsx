@@ -44,7 +44,7 @@ const VerificationSuccess = () => {
             
             // Redirect to dashboard after a short delay
             setTimeout(() => {
-              navigate("/");
+              navigate("/dashboard");
             }, 3000);
           }
         } else {
@@ -52,7 +52,7 @@ const VerificationSuccess = () => {
           const { data: { user } } = await supabase.auth.getUser();
           if (user?.email_confirmed_at) {
             setIsVerified(true);
-            setTimeout(() => navigate("/"), 2000);
+            setTimeout(() => navigate("/dashboard"), 2000);
           } else {
             setError("Invalid verification link");
           }
@@ -134,7 +134,7 @@ const VerificationSuccess = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <Button 
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/dashboard")}
             className="w-full"
           >
             Go to Dashboard

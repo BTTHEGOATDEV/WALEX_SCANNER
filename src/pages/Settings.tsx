@@ -71,6 +71,22 @@ const Settings = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
+        // Update email if it changed
+        if (profile.email !== user.email) {
+          const { error: emailError } = await supabase.auth.updateUser({
+            email: profile.email
+          });
+          if (emailError) {
+            toast({
+              title: "Error",
+              description: "Failed to update email. Please try again.",
+              variant: "destructive",
+            });
+            return;
+          }
+        }
+
+        // Update profile information
         await supabase
           .from('profiles')
           .upsert({
@@ -84,6 +100,11 @@ const Settings = () => {
           title: "Profile Updated",
           description: "Your profile has been saved successfully.",
         });
+
+        // Trigger navbar refresh by reloading profile
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } catch (error) {
         toast({
           title: "Error",

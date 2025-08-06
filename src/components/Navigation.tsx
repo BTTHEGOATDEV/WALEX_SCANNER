@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Shield, Home, FolderOpen, Activity, FileText, Settings, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -12,6 +13,33 @@ const Navigation = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const [userProfile, setUserProfile] = useState({ name: "", role: "" });
+
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  const loadUserProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profile) {
+        setUserProfile({
+          name: profile.full_name || "User",
+          role: profile.role || "Member"
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  };
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
@@ -87,8 +115,8 @@ const Navigation = () => {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-foreground">Okunola Babatola</p>
-              <p className="text-xs text-muted-foreground">Senior intern</p>
+              <p className="text-sm font-medium text-foreground">{userProfile.name}</p>
+              <p className="text-xs text-muted-foreground">{userProfile.role}</p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -98,7 +126,9 @@ const Navigation = () => {
                   className="p-0 h-auto hover:bg-transparent"
                 >
                   <Avatar className="cursor-pointer">
-                    <AvatarFallback className="bg-primary text-primary-foreground">OB</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
