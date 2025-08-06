@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Target, Shield, AlertTriangle, CheckCircle } from "lucide-react";
+import { Target, Shield, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
 import PaidPlanModal from "./PaidPlanModal";
 
 interface ScanDialogProps {
@@ -21,6 +21,7 @@ const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) =>
   const [isOpen, setIsOpen] = useState(false);
   const [isPaidModalOpen, setIsPaidModalOpen] = useState(false);
   const [paidFeatureName, setPaidFeatureName] = useState("");
+  const [isLaunching, setIsLaunching] = useState(false);
   const [formData, setFormData] = useState({
     target: "",
     scanType: "",
@@ -78,6 +79,8 @@ const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) =>
     }
 
     try {
+      setIsLaunching(true);
+      
       const scanTypeMap: Record<string, string> = {
         "Scan New Domain": "domain",
         "Port Range Check": "port", 
@@ -117,6 +120,8 @@ const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) =>
         description: error.message || "Failed to create scan",
         variant: "destructive",
       });
+    } finally {
+      setIsLaunching(false);
     }
   };
 
@@ -208,11 +213,18 @@ const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) =>
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} className="flex-1">
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} className="flex-1" disabled={isLaunching}>
               Cancel
             </Button>
-            <Button type="submit" variant="cyber" className="flex-1">
-              Launch Scan
+            <Button type="submit" variant="cyber" className="flex-1" disabled={isLaunching}>
+              {isLaunching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Launching...
+                </>
+              ) : (
+                "Launch Scan"
+              )}
             </Button>
           </div>
         </form>

@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.get-scan-results]
 verify_jwt = true
+
+[functions.receive-scan-results]
+verify_jwt = false
