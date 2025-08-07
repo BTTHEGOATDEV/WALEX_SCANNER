@@ -73,21 +73,6 @@ const Settings = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Update email if it changed
-        if (profile.email !== user.email) {
-          const { error: emailError } = await supabase.auth.updateUser({
-            email: profile.email
-          });
-          if (emailError) {
-            toast({
-              title: "Error",
-              description: "Failed to update email. Please try again.",
-              variant: "destructive",
-            });
-            return;
-          }
-        }
-
         // Update profile information
         await supabase
           .from('profiles')
@@ -193,10 +178,10 @@ const Settings = () => {
                         {profile.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="space-y-2">
-                      <Button variant="outline">Change Photo</Button>
-                      <p className="text-sm text-muted-foreground">JPG, PNG up to 2MB</p>
-                    </div>
+                     <div className="space-y-2">
+                       <Button variant="outline" onClick={handleComingSoon}>Change Photo</Button>
+                       <p className="text-sm text-muted-foreground">JPG, PNG up to 2MB</p>
+                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -208,14 +193,15 @@ const Settings = () => {
                         onChange={(e) => handleProfileChange("name", e.target.value)}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        value={profile.email}
-                        onChange={(e) => handleProfileChange("email", e.target.value)}
-                      />
-                    </div>
+                     <div className="space-y-2">
+                       <Label htmlFor="email">Email</Label>
+                       <Input
+                         id="email"
+                         value={profile.email}
+                         disabled
+                         className="bg-muted cursor-not-allowed"
+                       />
+                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="role">Role</Label>
                       <Input

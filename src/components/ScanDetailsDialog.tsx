@@ -224,6 +224,12 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
                   </div>
                 ))}
               </div>
+            ) : scanDetails.status === 'running' ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+                <p className="text-muted-foreground font-medium">Scan in Progress...</p>
+                <p className="text-sm text-muted-foreground mt-2">Please wait while the scan completes</p>
+              </div>
             ) : (
               <div className="text-center py-8">
                 <Info className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
