@@ -17,7 +17,7 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
     {
       title: "Welcome to WalexScan",
       description: "Your comprehensive penetration testing platform",
-      route: "/",
+      route: "/dashboard",
       content: (
         <div className="text-center space-y-4">
           <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-primary/60 rounded-full flex items-center justify-center">
@@ -29,7 +29,7 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
           <div className="bg-muted/50 p-4 rounded-lg">
             <p className="text-sm font-medium">🚀 Getting Started</p>
             <p className="text-xs text-muted-foreground mt-1">
-              This interactive guide will walk you through each feature with real navigation
+              This guide will show you around your dashboard and key features
             </p>
           </div>
         </div>
@@ -37,15 +37,15 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
     },
     {
       title: "Security Dashboard",
-      description: "Your security command center",
-      route: "/",
+      description: "Your security command center - see the metrics above",
+      route: "/dashboard",
       content: (
         <div className="space-y-4">
           <Card className="border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <Activity className="h-4 w-4 text-primary" />
-                Live Dashboard Overview
+                Dashboard Overview
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
@@ -64,103 +64,59 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
       )
     },
     {
-      title: "Security Scans",
-      description: "Launch comprehensive security assessments",
-      route: "/scans",
+      title: "Recent Activity",
+      description: "Stay updated with your latest scans and alerts",
+      route: "/dashboard",
+      content: (
+        <div className="space-y-4">
+          <Card className="border-border/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Activity className="h-4 w-4 text-primary" />
+                Activity Timeline
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="bg-success/10 p-3 rounded-lg">
+                <p className="font-medium">🕒 Recent Activity</p>
+                <p className="text-xs">• View completed scans</p>
+                <p className="text-xs">• Monitor scan progress</p>
+                <p className="text-xs">• Check system alerts</p>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Check the activity section to stay updated on your security operations.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    },
+    {
+      title: "Quick Actions",
+      description: "Start your security assessments",
+      route: "/dashboard",
       content: (
         <div className="space-y-4">
           <Card className="border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <Target className="h-4 w-4 text-primary" />
-                Scan Types Available
+                Quick Start Options
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-primary/10 p-2 rounded text-center">
                   <Target className="h-4 w-4 mx-auto mb-1" />
-                  <p className="text-xs font-medium">Domain</p>
+                  <p className="text-xs font-medium">New Scan</p>
                 </div>
                 <div className="bg-success/10 p-2 rounded text-center">
-                  <Wifi className="h-4 w-4 mx-auto mb-1" />
-                  <p className="text-xs font-medium">Port</p>
-                </div>
-                <div className="bg-warning/10 p-2 rounded text-center">
-                  <Shield className="h-4 w-4 mx-auto mb-1" />
-                  <p className="text-xs font-medium">Vulnerability</p>
-                </div>
-                <div className="bg-info/10 p-2 rounded text-center">
-                  <Lock className="h-4 w-4 mx-auto mb-1" />
-                  <p className="text-xs font-medium">SSL/TLS</p>
+                  <BarChart3 className="h-4 w-4 mx-auto mb-1" />
+                  <p className="text-xs font-medium">View Reports</p>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Click the quick action buttons above to start your first scan!
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )
-    },
-    {
-      title: "Reports & Analytics",
-      description: "View detailed security reports",
-      route: "/reports",
-      content: (
-        <div className="space-y-4">
-          <Card className="border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-primary" />
-                Report Features
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="bg-gradient-to-r from-primary/10 to-warning/10 p-3 rounded-lg">
-                <p className="font-medium">📈 Analytics Dashboard</p>
-                <p className="text-xs">• Export detailed PDF reports</p>
-                <p className="text-xs">• Customize report templates</p>
-                <p className="text-xs">• Share findings with stakeholders</p>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Access comprehensive reporting tools to document your security findings.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )
-    },
-    {
-      title: "Settings & Configuration",
-      description: "Customize your security environment",
-      route: "/settings",
-      content: (
-        <div className="space-y-4">
-          <Card className="border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Settings className="h-4 w-4 text-primary" />
-                Configuration Options
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="bg-muted/50 p-3 rounded-lg space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-primary rounded-full"></div>
-                  <p className="text-xs">Theme preferences</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-success rounded-full"></div>
-                  <p className="text-xs">Notification settings</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-warning rounded-full"></div>
-                  <p className="text-xs">API configurations</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Personalize your WalexScan experience and configure advanced settings.
+                Use the navigation or quick action buttons to start scanning!
               </p>
             </CardContent>
           </Card>
@@ -171,12 +127,7 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
-      const nextStepIndex = currentStep + 1;
-      // Navigate to the next step's route
-      if (steps[nextStepIndex].route) {
-        navigate(steps[nextStepIndex].route);
-      }
-      setCurrentStep(nextStepIndex);
+      setCurrentStep(currentStep + 1);
     } else {
       onComplete();
     }
@@ -184,12 +135,7 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
 
   const prevStep = () => {
     if (currentStep > 0) {
-      const prevStepIndex = currentStep - 1;
-      // Navigate to the previous step's route
-      if (steps[prevStepIndex].route) {
-        navigate(steps[prevStepIndex].route);
-      }
-      setCurrentStep(prevStepIndex);
+      setCurrentStep(currentStep - 1);
     }
   };
 
@@ -198,7 +144,7 @@ const OnboardingGuide = ({ onComplete }: OnboardingGuideProps) => {
   };
 
   return (
-    <Dialog open={true} onOpenChange={() => {}}>
+    <Dialog open={true} onOpenChange={(open) => !open && onComplete()}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">

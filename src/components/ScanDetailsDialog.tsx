@@ -36,15 +36,25 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
     
     setLoading(true);
     try {
-      // Use the edge function to get scan details and results
-      const { data: scanData, error } = await supabase.functions.invoke('get-scan-results', {
-        body: { scanId }
-      });
+      // Fetch scan details directly from database
+      const { data: scan, error: scanError } = await supabase
+        .from('scans')
+        .select('*')
+        .eq('id', scanId)
+        .single();
 
-      if (error) throw error;
-      
-      setScanDetails(scanData.scan);
-      setScanResults(scanData.results || []);
+      if (scanError) throw scanError;
+      setScanDetails(scan);
+
+      // Fetch scan results directly from database
+      const { data: results, error: resultsError } = await supabase
+        .from('scan_results')
+        .select('*')
+        .eq('scan_id', scanId)
+        .order('created_at', { ascending: false });
+
+      if (resultsError) throw resultsError;
+      setScanResults(results || []);
     } catch (error) {
       console.error('Error fetching scan details:', error);
     } finally {
