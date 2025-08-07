@@ -12,16 +12,20 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log(`Received ${req.method} request to get-scan-results`);
+
   try {
-    const url = new URL(req.url);
-    const scanId = url.searchParams.get('scanId');
+    const { scanId } = await req.json();
 
     if (!scanId) {
+      console.error('Missing scanId in request');
       return new Response(
         JSON.stringify({ error: 'Scan ID is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log(`Fetching details for scan: ${scanId}`);
 
     // Create Supabase client with user context
     const supabaseClient = createClient(
@@ -35,13 +39,17 @@ serve(async (req) => {
     const { data, error: authError } = await supabaseClient.auth.getUser(token);
     
     if (authError || !data.user) {
+      console.error('Authentication failed:', authError);
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    console.log(`Authenticated user: ${data.user.id}`);
+
     // Get scan details
+    console.log('Fetching scan details...');
     const { data: scan, error: scanError } = await supabaseClient
       .from('scans')
       .select('*')
@@ -49,13 +57,17 @@ serve(async (req) => {
       .single();
 
     if (scanError || !scan) {
+      console.error('Scan not found:', scanError);
       return new Response(
         JSON.stringify({ error: 'Scan not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    console.log(`Found scan: ${scan.id}, status: ${scan.status}`);
+
     // Get scan results
+    console.log('Fetching scan results...');
     const { data: results, error: resultsError } = await supabaseClient
       .from('scan_results')
       .select('*')
@@ -69,6 +81,8 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log(`Found ${results?.length || 0} scan results`);
 
     return new Response(
       JSON.stringify({
