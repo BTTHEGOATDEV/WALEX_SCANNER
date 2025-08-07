@@ -15,26 +15,32 @@ interface ScanResultData {
 }
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  console.log(`Received ${req.method} request to receive-scan-results`);
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
+    console.log('Creating Supabase client...');
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    console.log('Parsing request body...');
     const { scan_id, status, progress, results, error, completed_at }: ScanResultData = await req.json();
 
     if (!scan_id) {
+      console.error('Missing scan_id in request');
       return new Response(
         JSON.stringify({ error: 'scan_id is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Receiving results for scan: ${scan_id}, status: ${status}, progress: ${progress}`);
+    console.log(`Processing results for scan: ${scan_id}, status: ${status}, progress: ${progress}`);
 
     // Update scan record
     const updateData: any = {
@@ -71,6 +77,7 @@ Deno.serve(async (req) => {
       }
     }
 
+    console.log('Updating scan record...');
     const { error: scanUpdateError } = await supabase
       .from('scans')
       .update(updateData)
@@ -79,13 +86,14 @@ Deno.serve(async (req) => {
     if (scanUpdateError) {
       console.error('Error updating scan:', scanUpdateError);
       return new Response(
-        JSON.stringify({ error: 'Failed to update scan' }),
+        JSON.stringify({ error: 'Failed to update scan', details: scanUpdateError }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // Insert detailed results if available
     if (results && status === 'completed') {
+      console.log('Inserting scan results...');
       const scanResults = [];
 
       // Insert summary
@@ -129,6 +137,7 @@ Deno.serve(async (req) => {
       }
 
       if (scanResults.length > 0) {
+        console.log(`Inserting ${scanResults.length} scan result records...`);
         const { error: resultsError } = await supabase
           .from('scan_results')
           .insert(scanResults);
@@ -136,10 +145,13 @@ Deno.serve(async (req) => {
         if (resultsError) {
           console.error('Error inserting scan results:', resultsError);
           return new Response(
-            JSON.stringify({ error: 'Failed to store scan results' }),
+            JSON.stringify({ error: 'Failed to store scan results', details: resultsError }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
+        console.log('Successfully inserted scan results');
+      } else {
+        console.log('No scan results to insert');
       }
     }
 
@@ -157,7 +169,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Error in receive-scan-results function:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
