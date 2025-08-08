@@ -104,6 +104,104 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
     return `${seconds}s`;
   };
 
+  const renderResultContent = (result: ScanResult) => {
+    const c = result.content;
+    // Normalize common structures
+    if (result.result_type === 'summary' && c && typeof c === 'object' && !Array.isArray(c)) {
+      return (
+        <div className="bg-muted/50 rounded p-3 text-sm">
+          {Object.entries(c).map(([key, value]) => (
+            <div key={key} className="flex justify-between py-1">
+              <span className="capitalize">{String(key).replace(/_/g, ' ')}</span>
+              <span className="font-mono">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (result.result_type === 'hosts') {
+      const hosts = Array.isArray(c) ? c : c?.hosts;
+      if (Array.isArray(hosts) && hosts.length > 0) {
+        return (
+          <div className="space-y-2">
+            {hosts.map((h: any, i: number) => (
+              <div key={i} className="border rounded p-3 bg-muted/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-medium">{h.address || h.ip || h.host || `Host ${i+1}`}</span>
+                  {h.status && <Badge variant="outline">{h.status}</Badge>}
+                </div>
+                {h.open_ports && Array.isArray(h.open_ports) && h.open_ports.length > 0 && (
+                  <div className="text-sm">
+                    <span className="font-medium">Open Ports:</span>
+                    <div className="mt-1 grid grid-cols-2 gap-2">
+                      {h.open_ports.map((p: any, pi: number) => (
+                        <div key={pi} className="bg-background/40 border rounded px-2 py-1 flex items-center justify-between">
+                          <span className="font-mono">{p.port || p}</span>
+                          {p.service && <span className="text-muted-foreground text-xs">{p.service}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      }
+    }
+
+    if (c?.findings && Array.isArray(c.findings) && c.findings.length > 0) {
+      return (
+        <div className="space-y-2">
+          {c.findings.map((finding: any, findingIndex: number) => (
+            <div key={findingIndex} className="border rounded p-3 bg-muted/20">
+              <div className="flex items-center gap-2 mb-2">
+                {getSeverityIcon(finding.severity)}
+                <span className="font-medium">{finding.title || finding.id || `Finding ${findingIndex+1}`}</span>
+                {finding.severity && (
+                  <Badge className={getSeverityColor(finding.severity)} variant="outline">
+                    {finding.severity}
+                  </Badge>
+                )}
+              </div>
+              {finding.description && <p className="text-sm text-muted-foreground">{finding.description}</p>}
+              {finding.cve && (
+                <div className="mt-2">
+                  <Badge variant="destructive">{finding.cve}</Badge>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Fallbacks
+    if (Array.isArray(c)) {
+      return (
+        <div className="space-y-2">
+          {c.map((item: any, i: number) => (
+            <div key={i} className="bg-muted/50 rounded p-3 text-sm font-mono overflow-x-auto">
+              {typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item)}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    if (c && typeof c === 'object') {
+      return (
+        <div className="bg-muted/50 rounded p-3 text-sm font-mono overflow-x-auto">
+          {JSON.stringify(c, null, 2)}
+        </div>
+      );
+    }
+    if (c != null) {
+      return <div className="text-sm">{String(c)}</div>;
+    }
+    return <div className="text-sm text-muted-foreground">No content for this result.</div>;
+  };
+
   if (!scanDetails) {
     return null;
   }
@@ -183,45 +281,7 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
                     <div className="mb-3">
                       <Badge variant="outline">{result.result_type}</Badge>
                     </div>
-                    
-                    {result.content.summary && (
-                      <div className="mb-4">
-                        <h4 className="font-medium mb-2">Summary</h4>
-                        <div className="bg-muted/50 rounded p-3 text-sm">
-                          {Object.entries(result.content.summary).map(([key, value]) => (
-                            <div key={key} className="flex justify-between py-1">
-                              <span className="capitalize">{key.replace(/_/g, ' ')}:</span>
-                              <span className="font-mono">{String(value)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {result.content.findings && result.content.findings.length > 0 && (
-                      <div>
-                        <h4 className="font-medium mb-2">Findings ({result.content.findings.length})</h4>
-                        <div className="space-y-2">
-                          {result.content.findings.map((finding: any, findingIndex: number) => (
-                            <div key={findingIndex} className="border rounded p-3 bg-muted/20">
-                              <div className="flex items-center gap-2 mb-2">
-                                {getSeverityIcon(finding.severity)}
-                                <span className="font-medium">{finding.title}</span>
-                                <Badge className={getSeverityColor(finding.severity)} variant="outline">
-                                  {finding.severity}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-muted-foreground">{finding.description}</p>
-                              {finding.cve && (
-                                <div className="mt-2">
-                                  <Badge variant="destructive">{finding.cve}</Badge>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    {renderResultContent(result)}
                   </div>
                 ))}
               </div>
