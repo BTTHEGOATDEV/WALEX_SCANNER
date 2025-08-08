@@ -94,47 +94,76 @@ Deno.serve(async (req) => {
     // Insert detailed results if available
     if (results && status === 'completed') {
       console.log('Inserting scan results...');
-      const scanResults = [];
+      const scanResults: any[] = [];
 
-      // Insert summary
-      if (results.findings_count !== undefined) {
+      const safeResults = results || {};
+
+      // Summary: prefer explicit summary; otherwise construct a compact summary
+      let summaryAdded = false;
+      if (typeof safeResults.findings_count === 'number') {
         scanResults.push({
           scan_id,
           result_type: 'summary',
           content: {
-            findings_count: results.findings_count,
-            hosts_scanned: results.hosts_scanned || 1,
-            scan_stats: results.scan_stats || {}
+            findings_count: safeResults.findings_count,
+            hosts_scanned: safeResults.hosts_scanned ?? safeResults.scan_stats?.total_hosts ?? 1,
+            scan_stats: safeResults.scan_stats ?? {}
           }
         });
+        summaryAdded = true;
+      } else if (safeResults.summary || safeResults.scan_stats || safeResults.open_ports) {
+        scanResults.push({
+          scan_id,
+          result_type: 'summary',
+          content: safeResults.summary ?? {
+            target: safeResults.target,
+            scan_type: safeResults.scan_type,
+            subtype: safeResults.subtype,
+            open_ports: safeResults.open_ports,
+            services: safeResults.services,
+            scan_stats: safeResults.scan_stats,
+            timestamp: safeResults.timestamp
+          }
+        });
+        summaryAdded = true;
       }
 
-      // Insert findings
-      if (results.findings && results.findings.length > 0) {
+      // Findings list if present
+      if (Array.isArray(safeResults.findings) && safeResults.findings.length > 0) {
         scanResults.push({
           scan_id,
           result_type: 'findings',
-          content: { 
-            findings: results.findings.map((finding: any) => ({
-              ...finding,
-              timestamp: new Date().toISOString()
+          content: {
+            findings: safeResults.findings.map((f: any) => ({
+              ...f,
+              timestamp: new Date().toISOString(),
             }))
           }
         });
       }
 
-      // Insert host information
-      if (results.scan_stats) {
+      // Hosts info if present
+      if (safeResults.scan_stats || Array.isArray(safeResults.hosts) || Array.isArray(safeResults.hosts_details)) {
+        const hostsPayload = Array.isArray(safeResults.hosts) || Array.isArray(safeResults.hosts_details)
+          ? (safeResults.hosts ?? safeResults.hosts_details)
+          : {
+              total_hosts: safeResults.scan_stats?.total_hosts ?? 1,
+              up_hosts: safeResults.scan_stats?.up_hosts ?? 1,
+              down_hosts: safeResults.scan_stats?.down_hosts ?? 0,
+            };
         scanResults.push({
           scan_id,
           result_type: 'hosts',
-          content: {
-            total_hosts: results.scan_stats.total_hosts || 1,
-            up_hosts: results.scan_stats.up_hosts || 1,
-            down_hosts: results.scan_stats.down_hosts || 0
-          }
+          content: hostsPayload,
         });
       }
+
+      // Always store raw payload for troubleshooting
+      scanResults.push({
+        scan_id,
+        result_type: 'raw',
+        content: safeResults,
+      });
 
       if (scanResults.length > 0) {
         console.log(`Inserting ${scanResults.length} scan result records...`);

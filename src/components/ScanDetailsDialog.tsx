@@ -36,25 +36,13 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
     
     setLoading(true);
     try {
-      // Fetch scan details directly from database
-      const { data: scan, error: scanError } = await supabase
-        .from('scans')
-        .select('*')
-        .eq('id', scanId)
-        .single();
+      const { data, error } = await supabase.functions.invoke('get-scan-results', {
+        body: { scanId }
+      });
 
-      if (scanError) throw scanError;
-      setScanDetails(scan);
-
-      // Fetch scan results directly from database
-      const { data: results, error: resultsError } = await supabase
-        .from('scan_results')
-        .select('*')
-        .eq('scan_id', scanId)
-        .order('created_at', { ascending: false });
-
-      if (resultsError) throw resultsError;
-      setScanResults(results || []);
+      if (error) throw error;
+      setScanDetails(data?.scan ?? null);
+      setScanResults(data?.results ?? []);
     } catch (error) {
       console.error('Error fetching scan details:', error);
     } finally {
