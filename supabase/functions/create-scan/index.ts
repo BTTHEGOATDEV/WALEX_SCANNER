@@ -80,7 +80,25 @@ serve(async (req) => {
     if (pythonScannerUrl && pythonScannerUrl !== 'PYTHON_SCANNER_URL') {
       // Use real Python nmap scanning
       console.log(`Using real scanning with URL: ${pythonScannerUrl}`);
-      EdgeRuntime.waitUntil(executeRealScan(scan.id, scanType, scanSubtype, target, pythonScannerUrl));
+
+      // Map UI scan type/subtype to Python engine scan type
+      let engineScanType = scanType;
+      if (scanType === 'domain') {
+        // Domain flows map to actual engine scans
+        engineScanType = scanSubtype === 'basic' ? 'quick'
+          : scanSubtype === 'full' ? 'full'
+          : scanSubtype === 'deep' ? 'comprehensive'
+          : 'quick';
+      } else if (scanType === 'port') {
+        // Port flows map accordingly
+        engineScanType = scanSubtype === 'udp' ? 'udp'
+          : scanSubtype === 'stealth' ? 'stealth'
+          : 'port';
+      } // vulnerability and ssl pass-through
+
+      console.log(`Mapped engine scan type: ${engineScanType} (from ${scanType}/${scanSubtype})`);
+
+      EdgeRuntime.waitUntil(executeRealScan(scan.id, engineScanType, scanSubtype, target, pythonScannerUrl));
     } else {
       // Fall back to mock scanning for development
       console.log('PYTHON_SCANNER_URL not properly set, using mock scanning');
