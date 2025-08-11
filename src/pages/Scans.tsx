@@ -8,7 +8,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi, Settings } from "lucide-react";
 import ScanDialog from "@/components/ScanDialog";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
-import ScannerConfigDialog from "@/components/ScannerConfigDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
@@ -150,14 +149,7 @@ const Scans = () => {
               <p className="text-muted-foreground">Launch and monitor security assessments</p>
             </div>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="lg"
-                onClick={() => setShowScannerConfig(true)}
-              >
-                <Settings className="h-4 w-4 mr-2" />
-                Scanner Setup
-              </Button>
+
               <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
                 <Button variant="cyber" size="lg">
                   <Target className="h-4 w-4 mr-2" />
@@ -264,7 +256,7 @@ const Scans = () => {
                                 <TableCell colSpan={6} className="text-center py-8">
                                   <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                                   <p className="text-muted-foreground">No scans found for this category.</p>
-                                  <p className="text-sm text-muted-foreground">Start your first scan using the buttons above.</p>
+                                  <p className="text-sm text-muted-foreground">Start your first scan using the options above.</p>
                                 </TableCell>
                               </TableRow>
                             ) : (
@@ -365,11 +357,6 @@ const Scans = () => {
               setIsDetailsOpen(false);
               setSelectedScanId(null);
             }}
-          />
-
-          <ScannerConfigDialog
-            isOpen={showScannerConfig}
-            onClose={() => setShowScannerConfig(false)}
           />
         </div>
       </div>

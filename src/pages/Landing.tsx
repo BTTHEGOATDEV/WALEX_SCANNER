@@ -11,7 +11,7 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Shield className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">walexScan</span>
+            <span className="text-xl font-bold text-foreground">BTScan</span>
           </div>
           <div className="flex gap-4">
             <Link to="/login">
@@ -147,10 +147,10 @@ export default function Landing() {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-6 w-6 text-primary" />
-            <span className="text-lg font-bold">CyberScan</span>
+            <span className="text-lg font-bold">BTScan</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2024 CyberScan. Professional penetration testing platform.
+            © 2025 BTScan. Professional penetration testing platform.
           </p>
         </div>
       </footer>

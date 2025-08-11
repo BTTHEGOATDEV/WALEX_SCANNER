@@ -50,7 +50,7 @@ const Login = () => {
               <Shield className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Welcome back to WalexScan</h1>
+          <h1 className="text-2xl font-bold">Welcome back to BTScan</h1>
           <p className="text-muted-foreground">Sign in to your security dashboard</p>
         </div>
 
@@ -66,10 +66,10 @@ const Login = () => {
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
-                  id="email"
-                  type="email"
+                 
+                 
                   placeholder="Enter your email"
-                  value={email}
+                  
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
@@ -89,6 +89,7 @@ const Login = () => {
                   <Button
                     type="button"
                     variant="ghost"
+                    aria-label="Toggle password visibility"
                     size="sm"
                     className="absolute right-2 top-1/2 -translate-y-1/2 h-auto p-1"
                     onClick={() => setShowPassword(!showPassword)}

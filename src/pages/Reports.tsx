@@ -16,7 +16,7 @@ const Reports = () => {
   // Replace this with actual API call to fetch reports
   const reports: any[] = [];
 
-  // Replace with actual stats from your API
+  // Replace with actual stats from  API
   const stats = [
     {
       title: "Total Reports",

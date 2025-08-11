@@ -40,7 +40,7 @@ export function ThemeToggle() {
           }`}
         >
           <Sun className="h-4 w-4" />
-          <span className="font-medium">Light Mode</span>
+          <span className="font-medium">WHITE HAT</span>
           {theme === "light" && (
             <div className="ml-auto h-2 w-2 rounded-full bg-primary animate-pulse" />
           )}
@@ -52,7 +52,7 @@ export function ThemeToggle() {
           }`}
         >
           <Moon className="h-4 w-4" />
-          <span className="font-medium">Dark Mode</span>
+          <span className="font-medium">BLACK HAT</span>
           {theme === "dark" && (
             <div className="ml-auto h-2 w-2 rounded-full bg-primary animate-pulse" />
           )}
