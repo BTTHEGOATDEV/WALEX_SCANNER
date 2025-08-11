@@ -36,15 +36,30 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
     
     setLoading(true);
     try {
+      console.log('Fetching scan details for ID:', scanId);
+      
       const { data, error } = await supabase.functions.invoke('get-scan-results', {
         body: { scanId }
       });
 
-      if (error) throw error;
+      console.log('Edge function response:', { data, error });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+      
       setScanDetails(data?.scan ?? null);
       setScanResults(data?.results ?? []);
+      
+      if (!data?.scan) {
+        console.warn('No scan found with ID:', scanId);
+      }
     } catch (error) {
       console.error('Error fetching scan details:', error);
+      // Set empty state so dialog still shows with error message
+      setScanDetails(null);
+      setScanResults([]);
     } finally {
       setLoading(false);
     }
@@ -190,10 +205,6 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
     return <div className="text-sm text-muted-foreground">No content for this result.</div>;
   };
 
-  if (!scanDetails) {
-    return null;
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh]">
@@ -203,14 +214,30 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
             Scan Details
           </DialogTitle>
           <DialogDescription>
-            Detailed information and results for scan #{scanDetails.id.slice(0, 8)}
+            {scanDetails ? 
+              `Detailed information and results for scan #${scanDetails.id.slice(0, 8)}` :
+              `Loading scan details for ID: ${scanId?.slice(0, 8) || 'Unknown'}`
+            }
           </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="max-h-[70vh]">
           <div className="space-y-6">
-            {/* Scan Overview */}
-            <div className="grid grid-cols-2 gap-4">
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                <p className="text-sm text-muted-foreground mt-2">Loading scan details...</p>
+              </div>
+            ) : !scanDetails ? (
+              <div className="text-center py-8">
+                <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground font-medium">Scan not found</p>
+                <p className="text-sm text-muted-foreground mt-2">The scan with ID {scanId?.slice(0, 8)} could not be found or you don't have permission to view it.</p>
+              </div>
+            ) : (
+              <>
+                {/* Scan Overview */}
+                <div className="grid grid-cols-2 gap-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-muted-foreground" />
@@ -285,6 +312,8 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
                 <p className="text-muted-foreground">No detailed results available for this scan.</p>
               </div>
             )}
+            </>
+          )}
           </div>
         </ScrollArea>
 
