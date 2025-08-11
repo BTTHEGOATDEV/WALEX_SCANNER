@@ -48,7 +48,7 @@ serve(async (req) => {
 
     console.log(`Authenticated user: ${data.user.id}`);
 
-    // Get scan details
+    // Get scan details with better error handling
     console.log('Fetching scan details...');
     const { data: scan, error: scanError } = await supabaseClient
       .from('scans')
@@ -56,10 +56,29 @@ serve(async (req) => {
       .eq('id', scanId)
       .maybeSingle();
 
-    if (scanError || !scan) {
-      console.error('Scan not found:', scanError);
+    console.log('Raw scan query result:', { scan, scanError });
+
+    if (scanError) {
+      console.error('Database error fetching scan:', scanError);
       return new Response(
-        JSON.stringify({ error: 'Scan not found' }),
+        JSON.stringify({ error: 'Database error fetching scan', details: scanError }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!scan) {
+      console.error('Scan not found for ID:', scanId, 'User:', data.user.id);
+      
+      // Let's also check if the scan exists at all (without RLS)
+      const { data: allScans } = await supabaseClient
+        .from('scans')
+        .select('id, user_id')
+        .eq('id', scanId);
+      
+      console.log('Scan existence check:', allScans);
+      
+      return new Response(
+        JSON.stringify({ error: 'Scan not found or access denied' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
