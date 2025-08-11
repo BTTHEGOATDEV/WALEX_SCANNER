@@ -66,10 +66,10 @@ const Login = () => {
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
-                 
-                 
+                  id="email"
+                  type="email"
                   placeholder="Enter your email"
-                  
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
