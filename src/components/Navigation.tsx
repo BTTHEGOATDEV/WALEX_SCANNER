@@ -8,28 +8,30 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
-
 const Navigation = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const [userProfile, setUserProfile] = useState({ name: "", role: "" });
-
+  const [userProfile, setUserProfile] = useState({
+    name: "",
+    role: ""
+  });
   useEffect(() => {
     loadUserProfile();
   }, []);
-
   const loadUserProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, role')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
+      const {
+        data: profile
+      } = await supabase.from('profiles').select('full_name, role').eq('user_id', user.id).maybeSingle();
       if (profile) {
         setUserProfile({
           name: profile.full_name || "User",
@@ -40,31 +42,42 @@ const Navigation = () => {
       console.error('Error loading user profile:', error);
     }
   };
-
-  const navItems = [
-    { icon: Home, label: "Dashboard", path: "/dashboard" },
-    { icon: FolderOpen, label: "Projects", path: "/projects" },
-    { icon: Activity, label: "Scans", path: "/scans" },
-    { icon: FileText, label: "Reports", path: "/reports" },
-    { icon: Settings, label: "Settings", path: "/settings" },
-  ];
-
+  const navItems = [{
+    icon: Home,
+    label: "Dashboard",
+    path: "/dashboard"
+  }, {
+    icon: FolderOpen,
+    label: "Projects",
+    path: "/projects"
+  }, {
+    icon: Activity,
+    label: "Scans",
+    path: "/scans"
+  }, {
+    icon: FileText,
+    label: "Reports",
+    path: "/reports"
+  }, {
+    icon: Settings,
+    label: "Settings",
+    path: "/settings"
+  }];
   const handleNavigation = (path: string, label: string) => {
     navigate(path);
     toast({
       title: `Navigating to ${label}`,
       description: `Opening ${label.toLowerCase()} section...`,
-      duration: 2000,
+      duration: 2000
     });
   };
-
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
       toast({
         title: "Logged out successfully",
         description: "You have been signed out of your account",
-        duration: 2000,
+        duration: 2000
       });
       navigate("/");
     } catch (error) {
@@ -72,13 +85,11 @@ const Navigation = () => {
         title: "Logout failed",
         description: "An error occurred while signing out",
         variant: "destructive",
-        duration: 2000,
+        duration: 2000
       });
     }
   };
-
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border/50">
+  return <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border/50">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -87,7 +98,7 @@ const Navigation = () => {
               <Shield className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">WalexScan</h1>
+              <h1 className="text-xl font-bold text-foreground">BTScan</h1>
               <p className="text-xs text-muted-foreground">Professional Pentesting Webapp</p>
             </div>
           </div>
@@ -95,20 +106,12 @@ const Navigation = () => {
           {/* Navigation Items */}
           <div className="hidden md:flex items-center gap-2">
             {navItems.map((item, index) => {
-              const IconComponent = item.icon;
-              return (
-                <Button
-                  key={index}
-                  variant={location.pathname === item.path ? "cyber" : "ghost"}
-                  size="sm"
-                  className="relative"
-                  onClick={() => handleNavigation(item.path, item.label)}
-                >
+            const IconComponent = item.icon;
+            return <Button key={index} variant={location.pathname === item.path ? "cyber" : "ghost"} size="sm" className="relative" onClick={() => handleNavigation(item.path, item.label)}>
                   <IconComponent className="h-4 w-4 mr-2" />
                   {item.label}
-                </Button>
-              );
-            })}
+                </Button>;
+          })}
           </div>
 
           {/* Theme Toggle & User Profile */}
@@ -120,11 +123,7 @@ const Navigation = () => {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-0 h-auto hover:bg-transparent"
-                >
+                <Button variant="ghost" size="sm" className="p-0 h-auto hover:bg-transparent">
                   <Avatar className="cursor-pointer">
                     <AvatarFallback className="bg-primary text-primary-foreground">
                       {userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
@@ -147,8 +146,6 @@ const Navigation = () => {
           </div>
         </div>
       </div>
-    </nav>
-  );
+    </nav>;
 };
-
 export default Navigation;

@@ -8,9 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
-
 const Dashboard = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
   const [recentScans, setRecentScans] = useState<any[]>([]);
   const [scanStats, setScanStats] = useState({
@@ -22,44 +23,37 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedScanId, setSelectedScanId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-
   useEffect(() => {
     fetchDashboardData();
-    
-    // Set up real-time subscription for scans
-    const channel = supabase
-      .channel('dashboard-scans')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'scans'
-        },
-        () => {
-          fetchDashboardData(); // Refresh when scans change
-        }
-      )
-      .subscribe();
 
+    // Set up real-time subscription for scans
+    const channel = supabase.channel('dashboard-scans').on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'scans'
+    }, () => {
+      fetchDashboardData(); // Refresh when scans change
+    }).subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
-
   const fetchDashboardData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return;
 
       // Fetch recent scans for the authenticated user
-      const { data: scans, error: scansError } = await supabase
-        .from('scans')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
+      const {
+        data: scans,
+        error: scansError
+      } = await supabase.from('scans').select('*').eq('user_id', user.id).order('created_at', {
+        ascending: false
+      }).limit(10);
       if (scansError) throw scansError;
       setRecentScans(scans || []);
 
@@ -71,31 +65,27 @@ const Dashboard = () => {
         failed: scans?.filter(s => s.status === 'failed').length || 0
       };
       setScanStats(stats);
-
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
         title: "Error",
         description: "Failed to load dashboard data",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const handleViewDetails = (scanId: string) => {
     setSelectedScanId(scanId);
     setIsDetailsOpen(true);
   };
-
-  return (
-    <div className="min-h-screen bg-background p-6">
+  return <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
+            <h1 className="font-bold bg-gradient-cyber bg-clip-text text-transparent text-7xl">
               Security Dashboard
             </h1>
             <p className="text-muted-foreground">Real-time security assessment overview</p>
@@ -167,22 +157,17 @@ const Dashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? (
-                <div className="text-center py-8">
+              {loading ? <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                   <p className="text-sm text-muted-foreground mt-2">Loading recent activity...</p>
-                </div>
-              ) : recentScans.length === 0 ? (
-                <div className="text-center py-8">
+                </div> : recentScans.length === 0 ? <div className="text-center py-8">
                   <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">No recent scans</p>
                   <p className="text-sm text-muted-foreground mb-4">Start your first security scan to see activity here.</p>
                   <Button onClick={() => navigate('/scans')}>
                     Start First Scan
                   </Button>
-                </div>
-              ) : (
-                <Table>
+                </div> : <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Target</TableHead>
@@ -194,34 +179,18 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {recentScans.map((scan) => (
-                      <TableRow key={scan.id}>
+                    {recentScans.map(scan => <TableRow key={scan.id}>
                         <TableCell className="font-mono text-sm">{scan.target}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{scan.scan_type}</Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge 
-                            variant={
-                              scan.status === 'completed' ? 'default' : 
-                              scan.status === 'running' ? 'secondary' : 
-                              scan.status === 'failed' ? 'destructive' : 'outline'
-                            }
-                          >
+                          <Badge variant={scan.status === 'completed' ? 'default' : scan.status === 'running' ? 'secondary' : scan.status === 'failed' ? 'destructive' : 'outline'}>
                             {scan.status}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge 
-                            variant="outline"
-                            className={
-                              scan.severity === 'critical' ? 'bg-critical text-critical-foreground' :
-                              scan.severity === 'high' ? 'bg-cyber-red text-cyber-red-foreground' :
-                              scan.severity === 'medium' ? 'bg-warning text-warning-foreground' :
-                              scan.severity === 'low' ? 'bg-info text-info-foreground' :
-                              'bg-success text-success-foreground'
-                            }
-                          >
+                          <Badge variant="outline" className={scan.severity === 'critical' ? 'bg-critical text-critical-foreground' : scan.severity === 'high' ? 'bg-cyber-red text-cyber-red-foreground' : scan.severity === 'medium' ? 'bg-warning text-warning-foreground' : scan.severity === 'low' ? 'bg-info text-info-foreground' : 'bg-success text-success-foreground'}>
                             {scan.severity}
                           </Badge>
                         </TableCell>
@@ -229,20 +198,13 @@ const Dashboard = () => {
                           {new Date(scan.created_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewDetails(scan.id)}
-                            className="h-8 w-8 p-0"
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => handleViewDetails(scan.id)} className="h-8 w-8 p-0">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </TableCell>
-                      </TableRow>
-                    ))}
+                      </TableRow>)}
                   </TableBody>
-                </Table>
-              )}
+                </Table>}
             </CardContent>
           </Card>
           <Card className="col-span-3">
@@ -253,35 +215,19 @@ const Dashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button 
-                onClick={() => navigate('/scans')}
-                className="w-full justify-start" 
-                variant="outline"
-              >
+              <Button onClick={() => navigate('/scans')} className="w-full justify-start" variant="outline">
                 <Target className="mr-2 h-4 w-4" />
                 New Domain Scan
               </Button>
-              <Button 
-                onClick={() => navigate('/scans')}
-                className="w-full justify-start" 
-                variant="outline"
-              >
+              <Button onClick={() => navigate('/scans')} className="w-full justify-start" variant="outline">
                 <Shield className="mr-2 h-4 w-4" />
                 Port Range Check
               </Button>
-              <Button 
-                onClick={() => navigate('/scans')}
-                className="w-full justify-start" 
-                variant="outline"
-              >
+              <Button onClick={() => navigate('/scans')} className="w-full justify-start" variant="outline">
                 <Activity className="mr-2 h-4 w-4" />
                 Vulnerability Assessment
               </Button>
-              <Button 
-                onClick={() => navigate('/reports')}
-                className="w-full justify-start" 
-                variant="outline"
-              >
+              <Button onClick={() => navigate('/reports')} className="w-full justify-start" variant="outline">
                 <TrendingUp className="mr-2 h-4 w-4" />
                 View All Reports
               </Button>
@@ -289,17 +235,11 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <ScanDetailsDialog
-          scanId={selectedScanId}
-          isOpen={isDetailsOpen}
-          onClose={() => {
-            setIsDetailsOpen(false);
-            setSelectedScanId(null);
-          }}
-        />
+        <ScanDetailsDialog scanId={selectedScanId} isOpen={isDetailsOpen} onClose={() => {
+        setIsDetailsOpen(false);
+        setSelectedScanId(null);
+      }} />
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Dashboard;
