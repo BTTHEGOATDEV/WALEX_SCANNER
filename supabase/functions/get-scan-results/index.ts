@@ -54,7 +54,7 @@ serve(async (req) => {
       .from('scans')
       .select('*')
       .eq('id', scanId)
-      .single();
+      .maybeSingle();
 
     if (scanError || !scan) {
       console.error('Scan not found:', scanError);
