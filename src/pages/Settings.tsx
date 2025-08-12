@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -23,7 +24,7 @@ const Settings = () => {
     role: "",
     company: "",
   });
-
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [notifications, setNotifications] = useState({
     scanCompletion: false,
     highSeverityFindings: false,
@@ -42,9 +43,13 @@ const Settings = () => {
   }, []);
 
   const loadUserProfile = async () => {
+    setLoadingProfile(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setLoadingProfile(false);
+        return;
+      }
 
       setProfile(prev => ({ ...prev, email: user.email || "" }));
 
@@ -64,6 +69,8 @@ const Settings = () => {
       }
     } catch (error) {
       console.error('Error loading profile:', error);
+    } finally {
+      setLoadingProfile(false);
     }
   };
 
@@ -172,57 +179,92 @@ const Settings = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-20 w-20">
-                      <AvatarFallback className="text-lg bg-primary text-primary-foreground">
-                        {profile.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                     <div className="space-y-2">
-                       <Button variant="outline" onClick={handleComingSoon}>Change Photo</Button>
-                       <p className="text-sm text-muted-foreground">JPG, PNG up to 2MB</p>
-                     </div>
-                  </div>
+                  {loadingProfile ? (
+                    <>
+                      <div className="flex items-center gap-4">
+                        <Skeleton className="h-20 w-20 rounded-full" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-10 w-32" />
+                          <Skeleton className="h-4 w-40" />
+                        </div>
+                      </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input
-                        id="name"
-                        value={profile.name}
-                        onChange={(e) => handleProfileChange("name", e.target.value)}
-                      />
-                    </div>
-                     <div className="space-y-2">
-                       <Label htmlFor="email">Email</Label>
-                       <Input
-                         id="email"
-                         value={profile.email}
-                         disabled
-                         className="bg-muted cursor-not-allowed"
-                       />
-                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="role">Role</Label>
-                      <Input
-                        id="role"
-                        value={profile.role}
-                        onChange={(e) => handleProfileChange("role", e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="company">Company</Label>
-                      <Input
-                        id="company"
-                        value={profile.company}
-                        onChange={(e) => handleProfileChange("company", e.target.value)}
-                      />
-                    </div>
-                  </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Full Name</Label>
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email</Label>
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="role">Role</Label>
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="company">Company</Label>
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      </div>
 
-                  <Button onClick={() => handleSave("Profile")} className="w-full">
-                    Save Changes
-                  </Button>
+                      <Skeleton className="h-10 w-full" />
+                    </>
+                  ) : (
+                    <div className="animate-fade-in">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-20 w-20">
+                          <AvatarFallback className="text-lg bg-primary text-primary-foreground">
+                            {profile.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                         <div className="space-y-2">
+                           <Button variant="outline" onClick={handleComingSoon}>Change Photo</Button>
+                           <p className="text-sm text-muted-foreground">JPG, PNG up to 2MB</p>
+                         </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Full Name</Label>
+                          <Input
+                            id="name"
+                            value={profile.name}
+                            onChange={(e) => handleProfileChange("name", e.target.value)}
+                          />
+                        </div>
+                         <div className="space-y-2">
+                           <Label htmlFor="email">Email</Label>
+                           <Input
+                             id="email"
+                             value={profile.email}
+                             disabled
+                             className="bg-muted cursor-not-allowed"
+                           />
+                         </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="role">Role</Label>
+                          <Input
+                            id="role"
+                            value={profile.role}
+                            onChange={(e) => handleProfileChange("role", e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="company">Company</Label>
+                          <Input
+                            id="company"
+                            value={profile.company}
+                            onChange={(e) => handleProfileChange("company", e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      <Button onClick={() => handleSave("Profile")} className="w-full">
+                        Save Changes
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
