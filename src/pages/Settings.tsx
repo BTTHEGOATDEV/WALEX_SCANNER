@@ -208,7 +208,7 @@ const Settings = () => {
                         </div>
                       </div>
 
-                      <Skeleton className="h-10 w-full" />
+                      <Button className="w-full mt-4">Save Changes</Button>
                     </>
                   ) : (
                     <div className="animate-fade-in">
@@ -260,7 +260,7 @@ const Settings = () => {
                         </div>
                       </div>
 
-                      <Button onClick={() => handleSave("Profile")} className="w-full">
+                      <Button onClick={() => handleSave("Profile")} className="w-full mt-4">
                         Save Changes
                       </Button>
                     </div>
