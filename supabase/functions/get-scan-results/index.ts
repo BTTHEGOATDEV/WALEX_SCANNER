@@ -48,6 +48,12 @@ serve(async (req) => {
 
     console.log(`Authenticated user: ${data.user.id}`);
 
+    // Set the user's JWT token for RLS
+    await supabaseClient.auth.setSession({
+      access_token: token,
+      refresh_token: ''
+    });
+
     // Get scan details with better error handling
     console.log('Fetching scan details...');
     const { data: scan, error: scanError } = await supabaseClient

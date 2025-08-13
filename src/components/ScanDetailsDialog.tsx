@@ -156,22 +156,47 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
 
     if (c?.findings && Array.isArray(c.findings) && c.findings.length > 0) {
       return (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {c.findings.map((finding: any, findingIndex: number) => (
-            <div key={findingIndex} className="border rounded p-3 bg-muted/20">
+            <div key={findingIndex} className="border rounded-lg p-4 bg-muted/20">
               <div className="flex items-center gap-2 mb-2">
                 {getSeverityIcon(finding.severity)}
                 <span className="font-medium">{finding.title || finding.id || `Finding ${findingIndex+1}`}</span>
                 {finding.severity && (
                   <Badge className={getSeverityColor(finding.severity)} variant="outline">
-                    {finding.severity}
+                    {finding.severity.toUpperCase()}
                   </Badge>
                 )}
               </div>
-              {finding.description && <p className="text-sm text-muted-foreground">{finding.description}</p>}
-              {finding.cve && (
-                <div className="mt-2">
-                  <Badge variant="destructive">{finding.cve}</Badge>
+              {finding.description && <p className="text-sm text-muted-foreground mb-2">{finding.description}</p>}
+              
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                {finding.host && (
+                  <div><span className="font-medium">Host:</span> <span className="font-mono">{finding.host}</span></div>
+                )}
+                {finding.port && (
+                  <div><span className="font-medium">Port:</span> <span className="font-mono">{finding.port}/{finding.protocol}</span></div>
+                )}
+                {finding.service && (
+                  <div><span className="font-medium">Service:</span> {finding.service}</div>
+                )}
+                {finding.version && (
+                  <div><span className="font-medium">Version:</span> {finding.version}</div>
+                )}
+              </div>
+              
+              {finding.recommendation && (
+                <div className="mt-3 p-2 bg-info/10 border border-info/20 rounded text-xs">
+                  <span className="font-medium">Recommendation:</span> {finding.recommendation}
+                </div>
+              )}
+              
+              {(finding.cve || finding.cves) && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {finding.cve && <Badge variant="destructive" className="text-xs">{finding.cve}</Badge>}
+                  {finding.cves && finding.cves.map((cve: string, i: number) => (
+                    <Badge key={i} variant="destructive" className="text-xs">{cve}</Badge>
+                  ))}
                 </div>
               )}
             </div>
@@ -282,29 +307,121 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
 
             <Separator />
 
-            {/* Scan Results */}
+                {/* Scan Results */}
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 <p className="text-sm text-muted-foreground mt-2">Loading results...</p>
               </div>
             ) : scanResults.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Scan Results</h3>
-                {scanResults.map((result, index) => (
-                  <div key={index} className="bg-card border rounded-lg p-4">
-                    <div className="mb-3">
-                      <Badge variant="outline">{result.result_type}</Badge>
+                {scanResults.map((result, index) => {
+                  const content = result.content;
+                  const isSummary = result.result_type === 'summary' || content?.summary;
+                  const hasFindings = content?.findings && Array.isArray(content.findings) && content.findings.length > 0;
+                  const hasHosts = content?.hosts && Array.isArray(content.hosts) && content.hosts.length > 0;
+                  
+                  return (
+                    <div key={index} className="bg-card border rounded-lg p-6">
+                      <div className="mb-4">
+                        <Badge variant="outline" className="mb-3">{result.result_type}</Badge>
+                        
+                        {/* Summary Stats */}
+                        {isSummary && content?.summary && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            <div className="text-center p-3 bg-muted/30 rounded">
+                              <div className="text-2xl font-bold text-cyber-red">{content.summary.critical_findings || 0}</div>
+                              <div className="text-xs text-muted-foreground">Critical</div>
+                            </div>
+                            <div className="text-center p-3 bg-muted/30 rounded">
+                              <div className="text-2xl font-bold text-warning">{content.summary.high_findings || 0}</div>
+                              <div className="text-xs text-muted-foreground">High</div>
+                            </div>
+                            <div className="text-center p-3 bg-muted/30 rounded">
+                              <div className="text-2xl font-bold text-info">{content.summary.medium_findings || 0}</div>
+                              <div className="text-xs text-muted-foreground">Medium</div>
+                            </div>
+                            <div className="text-center p-3 bg-muted/30 rounded">
+                              <div className="text-2xl font-bold text-success">{content.summary.low_findings || 0}</div>
+                              <div className="text-xs text-muted-foreground">Low</div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Risk Score */}
+                        {content?.risk_score !== undefined && (
+                          <div className="mb-4 p-3 bg-muted/20 rounded">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">Risk Score:</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg font-bold">{content.risk_score.toFixed(1)}/10</span>
+                                <Badge className={getSeverityColor(content.risk_level?.toLowerCase() || 'low')}>
+                                  {content.risk_level || 'Unknown'}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Recommendations */}
+                        {content?.recommendations && Array.isArray(content.recommendations) && content.recommendations.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="font-medium mb-2">Recommendations:</h4>
+                            <ul className="space-y-1 text-sm">
+                              {content.recommendations.map((rec: string, i: number) => (
+                                <li key={i} className="flex items-start gap-2">
+                                  <span className="text-primary mt-1">•</span>
+                                  <span>{rec}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Collapsible Sections */}
+                      {hasFindings && (
+                        <details className="mb-4">
+                          <summary className="cursor-pointer font-medium mb-2 hover:text-primary">
+                            Findings ({content.findings.length})
+                          </summary>
+                          {renderResultContent(result)}
+                        </details>
+                      )}
+                      
+                      {hasHosts && (
+                        <details className="mb-4">
+                          <summary className="cursor-pointer font-medium mb-2 hover:text-primary">
+                            Hosts ({content.hosts.length})
+                          </summary>
+                          {renderResultContent(result)}
+                        </details>
+                      )}
+                      
+                      {!hasFindings && !hasHosts && (
+                        <div>{renderResultContent(result)}</div>
+                      )}
                     </div>
-                    {renderResultContent(result)}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : scanDetails.status === 'running' ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
                 <p className="text-muted-foreground font-medium">Scan in Progress...</p>
                 <p className="text-sm text-muted-foreground mt-2">Please wait while the scan completes</p>
+                {scanDetails.progress && (
+                  <div className="mt-4 max-w-xs mx-auto">
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full transition-all duration-300" 
+                        style={{ width: `${scanDetails.progress}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{scanDetails.progress}% complete</p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-8">

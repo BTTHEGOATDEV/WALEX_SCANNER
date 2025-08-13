@@ -85,15 +85,16 @@ serve(async (req) => {
       let engineScanType = scanType;
       if (scanType === 'domain') {
         // Domain flows map to actual engine scans
-        engineScanType = scanSubtype === 'basic' ? 'quick'
+        engineScanType = scanSubtype === 'basic' ? 'basic'
+          : scanSubtype === 'tcp' ? 'tcp'
           : scanSubtype === 'full' ? 'full'
-          : scanSubtype === 'deep' ? 'comprehensive'
-          : 'quick';
+          : 'basic';
       } else if (scanType === 'port') {
-        // Port flows map accordingly
+        // Port flows map accordingly  
         engineScanType = scanSubtype === 'udp' ? 'udp'
           : scanSubtype === 'stealth' ? 'stealth'
-          : 'port';
+          : scanSubtype === 'deep' ? 'deep'
+          : 'stealth';
       } // vulnerability and ssl pass-through
 
       console.log(`Mapped engine scan type: ${engineScanType} (from ${scanType}/${scanSubtype})`);
@@ -161,11 +162,15 @@ async function executeRealScan(scanId: string, scanType: string, scanSubtype: st
     console.log(`Cleaned base URL: ${cleanUrl}`);
     console.log(`Full scan endpoint: ${scanUrl}`);
     
+    // Get scanner secret from Supabase secrets
+    const scannerSecret = Deno.env.get('SCANNER_SECRET');
+    
     // Call Python scanner service
     const scannerResponse = await fetch(scanUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Scanner-Secret': scannerSecret || ''
       },
       body: JSON.stringify({
         scan_id: scanId,

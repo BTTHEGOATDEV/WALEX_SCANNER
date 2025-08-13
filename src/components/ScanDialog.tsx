@@ -30,14 +30,14 @@ const ScanDialog = ({ actionType, children, onScanCreated }: ScanDialogProps) =>
 
   const scanTypes = {
     "Scan New Domain": [
-      { value: "full", label: "Full Security Scan", icon: Target, isPaid: true },
       { value: "basic", label: "Basic Vulnerability Scan", icon: Shield, isPaid: false },
-      { value: "deep", label: "Deep Penetration Test", icon: AlertTriangle, isPaid: true },
+      { value: "tcp", label: "TCP Port Range Check", icon: Target, isPaid: false },
+      { value: "full", label: "Full Vulnerability Scan", icon: AlertTriangle, isPaid: false },
     ],
     "Port Range Check": [
-      { value: "tcp", label: "TCP Port Scan", icon: Shield, isPaid: false },
-      { value: "udp", label: "UDP Port Scan", icon: Shield, isPaid: true },
-      { value: "stealth", label: "Stealth Port Scan", icon: Target, isPaid: true },
+      { value: "udp", label: "UDP Port Scan", icon: Shield, isPaid: false },
+      { value: "stealth", label: "Stealth Port Scan", icon: Target, isPaid: false },
+      { value: "deep", label: "Deep Pentest Scan", icon: AlertTriangle, isPaid: false },
     ],
     "Vulnerability Assessment": [
       { value: "web", label: "Web Application Scan", icon: AlertTriangle, isPaid: true },
