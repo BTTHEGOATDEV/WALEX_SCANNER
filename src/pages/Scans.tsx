@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi, Settings } from "lucide-react";
 import ScanDialog from "@/components/ScanDialog";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
+import ScanProgressModal from "@/components/ScanProgressModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
@@ -19,7 +20,8 @@ const Scans = () => {
   const [loading, setLoading] = useState(true);
   const [selectedScanId, setSelectedScanId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [showScannerConfig, setShowScannerConfig] = useState(false);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [selectedScan, setSelectedScan] = useState<any>(null);
 
   useEffect(() => {
     fetchScans();
@@ -92,8 +94,16 @@ const Scans = () => {
   };
 
   const handleViewDetails = (scanId: string) => {
+    const scan = scans.find(s => s.id === scanId);
+    setSelectedScan(scan);
     setSelectedScanId(scanId);
-    setIsDetailsOpen(true);
+    
+    // Show progress modal for running scans, details dialog for completed scans
+    if (scan?.status === 'running' || scan?.status === 'queued') {
+      setShowProgressModal(true);
+    } else {
+      setIsDetailsOpen(true);
+    }
   };
 
   const scanCategories = [
@@ -356,7 +366,19 @@ const Scans = () => {
             onClose={() => {
               setIsDetailsOpen(false);
               setSelectedScanId(null);
+              setSelectedScan(null);
             }}
+          />
+
+          <ScanProgressModal
+            isOpen={showProgressModal}
+            onClose={() => {
+              setShowProgressModal(false);
+              setSelectedScanId(null);
+              setSelectedScan(null);
+            }}
+            scanId={selectedScanId}
+            scanDetails={selectedScan}
           />
         </div>
       </div>

@@ -441,4 +441,8 @@ def root():
 
 if __name__ == "__main__":
     import uvicorn
+    print("🚀 Starting CyberScan nmap Service v1.3.0")
+    print("📡 Listening on http://0.0.0.0:8000")
+    print("🔒 Secret authentication:", "✅ Enabled" if SC_SECRET else "❌ Disabled")
+    print("📞 Callback URL:", SC_CALLBACK_DEFAULT or "❌ Not set")
     uvicorn.run(app, host="0.0.0.0", port=8000)
