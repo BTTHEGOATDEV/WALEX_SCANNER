@@ -1,12 +1,12 @@
 # 🚀 CyberScan Python Backend Deployment Guide
 
-This guide walks you through deploying your Python nmap scanner backend and connecting it to your Lovable frontend.
+⚠️ **IMPORTANT HOSTING LIMITATION**: Most cloud platforms (Railway, Render, Heroku) restrict or block nmap port scanning for security reasons. This guide provides both local development setup and alternative production deployment options.
 
 ## 📋 Prerequisites
 
 - Python 3.11+ installed
 - nmap installed on your system
-- A cloud hosting service (Railway, Render, Heroku, etc.)
+- For production: VPS or dedicated server (see production options below)
 - Your Supabase project details
 
 ## 🔧 Local Development Setup
@@ -68,69 +68,82 @@ curl http://localhost:8000/health
 
 ## 🌐 Production Deployment Options
 
-### Option 1: Railway (Recommended)
+⚠️ **Cloud Platform Limitations**: Railway, Render, Heroku, and most PaaS providers restrict nmap for security reasons. Here are viable alternatives:
 
-Railway provides excellent Docker support and is easy to deploy:
+### Option 1: VPS/Dedicated Server (Recommended for Production)
 
-1. **Sign up at [Railway.app](https://railway.app)**
+**DigitalOcean, Linode, AWS EC2, or Google Compute Engine:**
 
-2. **Install Railway CLI:**
 ```bash
-npm install -g @railway/cli
-railway login
+# SSH into your VPS
+ssh user@your-server-ip
+
+# Install dependencies
+sudo apt update
+sudo apt install python3-pip nmap -y
+pip3 install -r requirements.txt
+
+# Create systemd service
+sudo nano /etc/systemd/system/cyberscan.service
 ```
 
-3. **Deploy:**
-```bash
-# In your python-scanner directory
-railway new
-railway up
+**Service configuration:**
+```ini
+[Unit]
+Description=CyberScan nmap Service
+After=network.target
 
-# Set environment variables
-railway variables set SCANNER_SECRET=your-secret-key
-railway variables set CALLBACK_URL_DEFAULT=https://sxqguvbqxmdqcwjybekk.supabase.co/functions/v1/receive-scan-results
+[Service]
+Type=simple
+User=your-user
+WorkingDirectory=/path/to/python-scanner
+Environment=SCANNER_SECRET=your-secret-key
+Environment=CALLBACK_URL_DEFAULT=https://sxqguvbqxmdqcwjybekk.supabase.co/functions/v1/receive-scan-results
+ExecStart=/usr/bin/python3 enhanced_main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-4. **Get your deployment URL:**
 ```bash
-railway status
-# Copy the URL (e.g., https://your-app.railway.app)
+# Enable and start service
+sudo systemctl enable cyberscan
+sudo systemctl start cyberscan
+sudo systemctl status cyberscan
 ```
 
-### Option 2: Render
+### Option 2: Docker Container on VPS
 
-1. **Connect your GitHub repo to Render**
-2. **Create a new Web Service**
-3. **Configure:**
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `python enhanced_main.py`
-   - Environment Variables:
-     - `SCANNER_SECRET`: your-secret-key
-     - `CALLBACK_URL_DEFAULT`: your-supabase-callback-url
-
-### Option 3: Heroku
-
-1. **Create Heroku app:**
 ```bash
-heroku create your-nmap-scanner
+# Build and run container
+docker build -t cyberscan .
+docker run -d -p 8000:8000 \
+  -e SCANNER_SECRET=your-secret-key \
+  -e CALLBACK_URL_DEFAULT=https://your-callback-url \
+  --name cyberscan cyberscan
 ```
 
-2. **Add buildpacks:**
+### Option 3: Local Development Only
+
+For testing and development, run locally and use ngrok for external access:
+
 ```bash
-heroku buildpacks:add heroku/python
-heroku buildpacks:add https://github.com/EdwardBetts/heroku-buildpack-nmap.git
+# Install ngrok
+npm install -g ngrok
+
+# Run your Python backend locally
+python enhanced_main.py
+
+# In another terminal, expose with ngrok
+ngrok http 8000
+
+# Use the ngrok URL as your PYTHON_SCANNER_URL
 ```
 
-3. **Set environment variables:**
-```bash
-heroku config:set SCANNER_SECRET=your-secret-key
-heroku config:set CALLBACK_URL_DEFAULT=your-callback-url
-```
+### Option 4: Mock Scanner for Demo
 
-4. **Deploy:**
-```bash
-git push heroku main
-```
+If you just want to demo the UI without real scanning, create a mock version that returns fake data - this can be deployed anywhere.
 
 ## 🔗 Connect to Lovable Frontend
 
