@@ -109,39 +109,175 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
 
   const renderResultContent = (result: ScanResult) => {
     const c = result.content;
-    // Normalize common structures
+    
+    // Enhanced Summary Display for Python Scanner Results
     if (result.result_type === 'summary' && c && typeof c === 'object' && !Array.isArray(c)) {
       return (
-        <div className="bg-muted/50 rounded p-3 text-sm">
-          {Object.entries(c).map(([key, value]) => (
-            <div key={key} className="flex justify-between py-1">
-              <span className="capitalize">{String(key).replace(/_/g, ' ')}</span>
-              <span className="font-mono">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</span>
+        <div className="space-y-4">
+          {/* Risk Score and Level */}
+          {(c.risk_score !== undefined || c.risk_level) && (
+            <div className="bg-muted/30 rounded-lg p-4">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                Risk Assessment
+              </h4>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Overall Risk Score:</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold">{c.risk_score?.toFixed(1) || 'N/A'}/10</span>
+                  {c.risk_level && (
+                    <Badge className={getSeverityColor(c.risk_level.toLowerCase())}>
+                      {c.risk_level}
+                    </Badge>
+                  )}
+                </div>
+              </div>
             </div>
-          ))}
+          )}
+          
+          {/* Scan Statistics */}
+          {c.scan_stats && (
+            <div className="bg-muted/30 rounded-lg p-4">
+              <h4 className="font-semibold mb-2">Scan Statistics</h4>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                {c.scan_stats.total_hosts && (
+                  <div className="flex justify-between">
+                    <span>Total Hosts:</span>
+                    <span className="font-mono">{c.scan_stats.total_hosts}</span>
+                  </div>
+                )}
+                {c.scan_stats.up_hosts !== undefined && (
+                  <div className="flex justify-between">
+                    <span>Up Hosts:</span>
+                    <span className="font-mono text-success">{c.scan_stats.up_hosts}</span>
+                  </div>
+                )}
+                {c.scan_stats.total_open_ports && (
+                  <div className="flex justify-between">
+                    <span>Open Ports:</span>
+                    <span className="font-mono">{c.scan_stats.total_open_ports}</span>
+                  </div>
+                )}
+                {c.scan_stats.scan_type && (
+                  <div className="flex justify-between">
+                    <span>Scan Type:</span>
+                    <Badge variant="outline">{c.scan_stats.scan_type}</Badge>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Findings Summary */}
+          {(c.summary || (c.critical_findings !== undefined)) && (
+            <div className="bg-muted/30 rounded-lg p-4">
+              <h4 className="font-semibold mb-2">Findings Summary</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="text-center p-2 bg-destructive/10 rounded">
+                  <div className="text-lg font-bold text-destructive">
+                    {c.summary?.critical_findings || c.critical_findings || 0}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Critical</div>
+                </div>
+                <div className="text-center p-2 bg-warning/10 rounded">
+                  <div className="text-lg font-bold text-warning">
+                    {c.summary?.high_findings || c.high_findings || 0}
+                  </div>
+                  <div className="text-xs text-muted-foreground">High</div>
+                </div>
+                <div className="text-center p-2 bg-info/10 rounded">
+                  <div className="text-lg font-bold text-info">
+                    {c.summary?.medium_findings || c.medium_findings || 0}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Medium</div>
+                </div>
+                <div className="text-center p-2 bg-success/10 rounded">
+                  <div className="text-lg font-bold text-success">
+                    {c.summary?.low_findings || c.low_findings || 0}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Low</div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Basic Summary Fallback */}
+          {!c.risk_score && !c.scan_stats && !c.summary && (
+            <div className="bg-muted/50 rounded p-3 text-sm">
+              {Object.entries(c).map(([key, value]) => (
+                <div key={key} className="flex justify-between py-1">
+                  <span className="capitalize">{String(key).replace(/_/g, ' ')}</span>
+                  <span className="font-mono">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       );
     }
 
+    // Enhanced Hosts Display for Python Scanner Results
     if (result.result_type === 'hosts') {
       const hosts = Array.isArray(c) ? c : c?.hosts;
       if (Array.isArray(hosts) && hosts.length > 0) {
         return (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {hosts.map((h: any, i: number) => (
-              <div key={i} className="border rounded p-3 bg-muted/20">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium">{h.address || h.ip || h.host || `Host ${i+1}`}</span>
-                  {h.status && <Badge variant="outline">{h.status}</Badge>}
+              <div key={i} className="border rounded-lg p-4 bg-card">
+                {/* Host Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-primary" />
+                    <span className="font-semibold">{h.address || h.ip || h.host || `Host ${i+1}`}</span>
+                    {h.hostname && h.hostname !== h.address && (
+                      <span className="text-sm text-muted-foreground">({h.hostname})</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {h.state && (
+                      <Badge variant={h.state === 'up' ? 'default' : 'secondary'}>
+                        {h.state}
+                      </Badge>
+                    )}
+                    {h.status && (
+                      <Badge variant="outline">{h.status}</Badge>
+                    )}
+                  </div>
                 </div>
+                
+                {/* Open Ports */}
                 {h.open_ports && Array.isArray(h.open_ports) && h.open_ports.length > 0 && (
-                  <div className="text-sm">
-                    <span className="font-medium">Open Ports:</span>
-                    <div className="mt-1 grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">Open Ports ({h.open_ports.length})</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {h.open_ports.map((p: any, pi: number) => (
-                        <div key={pi} className="bg-background/40 border rounded px-2 py-1 flex items-center justify-between">
-                          <span className="font-mono">{p.port || p}</span>
-                          {p.service && <span className="text-muted-foreground text-xs">{p.service}</span>}
+                        <div key={pi} className="bg-muted/30 border rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-mono font-semibold">
+                              {p.port}/{p.protocol || 'tcp'}
+                            </span>
+                            {p.severity && (
+                              <Badge className={getSeverityColor(p.severity)} variant="outline">
+                                {p.severity.toUpperCase()}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs space-y-1">
+                            {p.service && (
+                              <div><span className="font-medium">Service:</span> {p.service}</div>
+                            )}
+                            {p.product && (
+                              <div><span className="font-medium">Product:</span> {p.product}</div>
+                            )}
+                            {p.version && (
+                              <div><span className="font-medium">Version:</span> {p.version}</div>
+                            )}
+                            {p.state && (
+                              <div><span className="font-medium">State:</span> {p.state}</div>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -327,52 +463,72 @@ const ScanDetailsDialog = ({ scanId, isOpen, onClose }: ScanDetailsDialogProps) 
                       <div className="mb-4">
                         <Badge variant="outline" className="mb-3">{result.result_type}</Badge>
                         
-                        {/* Summary Stats */}
-                        {isSummary && content?.summary && (
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            <div className="text-center p-3 bg-muted/30 rounded">
-                              <div className="text-2xl font-bold text-cyber-red">{content.summary.critical_findings || 0}</div>
-                              <div className="text-xs text-muted-foreground">Critical</div>
-                            </div>
-                            <div className="text-center p-3 bg-muted/30 rounded">
-                              <div className="text-2xl font-bold text-warning">{content.summary.high_findings || 0}</div>
-                              <div className="text-xs text-muted-foreground">High</div>
-                            </div>
-                            <div className="text-center p-3 bg-muted/30 rounded">
-                              <div className="text-2xl font-bold text-info">{content.summary.medium_findings || 0}</div>
-                              <div className="text-xs text-muted-foreground">Medium</div>
-                            </div>
-                            <div className="text-center p-3 bg-muted/30 rounded">
-                              <div className="text-2xl font-bold text-success">{content.summary.low_findings || 0}</div>
-                              <div className="text-xs text-muted-foreground">Low</div>
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Risk Score */}
-                        {content?.risk_score !== undefined && (
-                          <div className="mb-4 p-3 bg-muted/20 rounded">
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium">Risk Score:</span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg font-bold">{content.risk_score.toFixed(1)}/10</span>
-                                <Badge className={getSeverityColor(content.risk_level?.toLowerCase() || 'low')}>
-                                  {content.risk_level || 'Unknown'}
-                                </Badge>
+                {/* Enhanced Summary Stats */}
+                        {(isSummary || content?.summary || content?.risk_score) && (
+                          <>
+                            {/* Risk Score Display */}
+                            {content?.risk_score !== undefined && (
+                              <div className="mb-4 p-4 bg-gradient-to-r from-muted/30 to-muted/10 rounded-lg border">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <AlertTriangle className="h-4 w-4" />
+                                    <span className="font-semibold">Risk Assessment</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xl font-bold">{content.risk_score.toFixed(1)}</span>
+                                    <span className="text-muted-foreground">/10</span>
+                                    <Badge className={getSeverityColor(content.risk_level?.toLowerCase() || 'low')}>
+                                      {content.risk_level || 'Unknown'}
+                                    </Badge>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
+                            )}
+                            
+                            {/* Findings Summary */}
+                            {(content?.summary || content?.critical_findings !== undefined) && (
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                                <div className="text-center p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                                  <div className="text-2xl font-bold text-destructive">
+                                    {content.summary?.critical_findings || content.critical_findings || 0}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">Critical</div>
+                                </div>
+                                <div className="text-center p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                                  <div className="text-2xl font-bold text-warning">
+                                    {content.summary?.high_findings || content.high_findings || 0}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">High</div>
+                                </div>
+                                <div className="text-center p-3 bg-info/10 border border-info/20 rounded-lg">
+                                  <div className="text-2xl font-bold text-info">
+                                    {content.summary?.medium_findings || content.medium_findings || 0}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">Medium</div>
+                                </div>
+                                <div className="text-center p-3 bg-success/10 border border-success/20 rounded-lg">
+                                  <div className="text-2xl font-bold text-success">
+                                    {content.summary?.low_findings || content.low_findings || 0}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">Low</div>
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
                         
                         {/* Recommendations */}
                         {content?.recommendations && Array.isArray(content.recommendations) && content.recommendations.length > 0 && (
-                          <div className="mb-4">
-                            <h4 className="font-medium mb-2">Recommendations:</h4>
-                            <ul className="space-y-1 text-sm">
+                          <div className="mb-4 p-4 bg-info/5 border border-info/20 rounded-lg">
+                            <h4 className="font-semibold mb-3 flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-info" />
+                              Security Recommendations
+                            </h4>
+                            <ul className="space-y-2 text-sm">
                               {content.recommendations.map((rec: string, i: number) => (
                                 <li key={i} className="flex items-start gap-2">
-                                  <span className="text-primary mt-1">•</span>
-                                  <span>{rec}</span>
+                                  <span className="text-info mt-1 font-bold">•</span>
+                                  <span className="text-muted-foreground">{rec}</span>
                                 </li>
                               ))}
                             </ul>
