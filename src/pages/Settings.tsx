@@ -81,14 +81,20 @@ const Settings = () => {
         if (!user) return;
 
         // Update profile information
-        await supabase
+        const { error: upsertError } = await supabase
           .from('profiles')
           .upsert({
             user_id: user.id,
             full_name: profile.name,
             company: profile.company,
             role: profile.role
+          }, {
+            onConflict: 'user_id'
           });
+
+        if (upsertError) {
+          throw upsertError;
+        }
 
         toast({
           title: "Profile Updated",

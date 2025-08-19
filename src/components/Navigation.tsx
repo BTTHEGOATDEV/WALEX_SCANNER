@@ -29,12 +29,21 @@ const Navigation = () => {
         }
       } = await supabase.auth.getUser();
       if (!user) return;
+
+      // Set default values from user data
+      setUserProfile({
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || "User",
+        role: "Member"
+      });
+
+      // Try to get profile data from profiles table
       const {
         data: profile
-      } = await supabase.from('profiles').select('full_name, role').eq('user_id', user.id).maybeSingle();
+      } = await supabase.from('profiles').select('full_name, role, company').eq('user_id', user.id).maybeSingle();
+      
       if (profile) {
         setUserProfile({
-          name: profile.full_name || "User",
+          name: profile.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || "User",
           role: profile.role || "Member"
         });
       }
