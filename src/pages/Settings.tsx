@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Settings as SettingsIcon, User, Bell, Shield, Database, Key, Palette, Monitor } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,20 +10,37 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import Navigation from "@/components/Navigation";
 import { useTheme } from "@/components/ThemeProvider";
 
 const Settings = () => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+  const { userProfile, isLoading: profileLoading, updateProfile } = useUserProfile();
   const [showComingSoon, setShowComingSoon] = useState(false);
-  const [profile, setProfile] = useState({
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Local state for form inputs
+  const [localProfile, setLocalProfile] = useState({
     name: "",
     email: "",
     role: "",
     company: "",
   });
-  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  // Update local state when userProfile changes
+  useEffect(() => {
+    if (userProfile.name || userProfile.email || userProfile.role || userProfile.company) {
+      setLocalProfile({
+        name: userProfile.name || "",
+        email: userProfile.email || "",
+        role: userProfile.role || "",
+        company: userProfile.company || ""
+      });
+    }
+  }, [userProfile.name, userProfile.email, userProfile.role, userProfile.company]);
+
   const [notifications, setNotifications] = useState({
     scanCompletion: false,
     highSeverityFindings: false,
@@ -39,78 +55,46 @@ const Settings = () => {
   });
 
   useEffect(() => {
-    loadUserProfile();
+    // Component initialization - profile data will be loaded by useUserProfile hook
   }, []);
-
-  const loadUserProfile = async () => {
-    setLoadingProfile(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setLoadingProfile(false);
-        return;
-      }
-
-      setProfile(prev => ({ ...prev, email: user.email || "" }));
-
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('full_name, company, role')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (userProfile) {
-        setProfile(prev => ({
-          ...prev,
-          name: userProfile.full_name || "",
-          company: userProfile.company || "",
-          role: userProfile.role || ""
-        }));
-      }
-    } catch (error) {
-      console.error('Error loading profile:', error);
-    } finally {
-      setLoadingProfile(false);
-    }
-  };
 
   const handleSave = async (section: string) => {
     if (section === "Profile") {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        // Update profile information
-        const { error: upsertError } = await supabase
-          .from('profiles')
-          .upsert({
-            user_id: user.id,
-            full_name: profile.name,
-            company: profile.company,
-            role: profile.role
-          }, {
-            onConflict: 'user_id'
-          });
-
-        if (upsertError) {
-          throw upsertError;
-        }
-
+      if (!localProfile.name.trim()) {
         toast({
-          title: "Profile Updated",
-          description: "Your profile has been saved successfully.",
+          title: "Name required",
+          description: "Please enter your full name",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setIsSaving(true);
+      
+      try {
+        const success = await updateProfile({
+          name: localProfile.name,
+          company: localProfile.company,
+          role: localProfile.role
         });
 
-        // Trigger navbar refresh by reloading profile
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        if (success) {
+          toast({
+            title: "Profile Updated",
+            description: "Your profile has been saved successfully.",
+          });
+        } else {
+          throw new Error("Update failed");
+        }
       } catch (error) {
+        console.error('Error updating profile:', error);
         toast({
           title: "Error",
           description: "Failed to save profile. Please try again.",
           variant: "destructive",
         });
+      } finally {
+        setIsSaving(false);
       }
     } else {
       toast({
@@ -121,7 +105,7 @@ const Settings = () => {
   };
 
   const handleProfileChange = (field: string, value: string) => {
-    setProfile(prev => ({ ...prev, [field]: value }));
+    setLocalProfile(prev => ({ ...prev, [field]: value }));
   };
 
   const handleNotificationChange = (field: string, value: boolean) => {
@@ -184,8 +168,8 @@ const Settings = () => {
                     Update your personal information and preferences
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {loadingProfile ? (
+                 <CardContent className="space-y-6">
+                   {profileLoading ? (
                     <>
                       <div className="flex items-center gap-4">
                         <Skeleton className="h-20 w-20 rounded-full" />
@@ -221,7 +205,7 @@ const Settings = () => {
                       <div className="flex items-center gap-4">
                         <Avatar className="h-20 w-20">
                           <AvatarFallback className="text-lg bg-primary text-primary-foreground">
-                            {profile.name.split(' ').map(n => n[0]).join('')}
+                            {localProfile.name ? localProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
                           </AvatarFallback>
                         </Avatar>
                          <div className="space-y-2">
@@ -233,42 +217,51 @@ const Settings = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Full Name</Label>
-                          <Input
-                            id="name"
-                            value={profile.name}
-                            onChange={(e) => handleProfileChange("name", e.target.value)}
-                          />
+                           <Input
+                             id="name"
+                             value={localProfile.name}
+                             onChange={(e) => handleProfileChange("name", e.target.value)}
+                             disabled={profileLoading}
+                           />
                         </div>
                          <div className="space-y-2">
                            <Label htmlFor="email">Email</Label>
-                           <Input
-                             id="email"
-                             value={profile.email}
-                             disabled
-                             className="bg-muted cursor-not-allowed"
-                           />
+                            <Input
+                              id="email"
+                              value={localProfile.email}
+                              disabled
+                              className="bg-muted cursor-not-allowed"
+                            />
                          </div>
                         <div className="space-y-2">
                           <Label htmlFor="role">Role</Label>
-                          <Input
-                            id="role"
-                            value={profile.role}
-                            onChange={(e) => handleProfileChange("role", e.target.value)}
-                          />
+                           <Input
+                             id="role"
+                             value={localProfile.role}
+                             onChange={(e) => handleProfileChange("role", e.target.value)}
+                             disabled={profileLoading}
+                             placeholder="e.g., Security Analyst, IT Manager"
+                           />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="company">Company</Label>
-                          <Input
-                            id="company"
-                            value={profile.company}
-                            onChange={(e) => handleProfileChange("company", e.target.value)}
-                          />
+                           <Input
+                             id="company"
+                             value={localProfile.company}
+                             onChange={(e) => handleProfileChange("company", e.target.value)}
+                             disabled={profileLoading}
+                             placeholder="Enter your company name"
+                           />
                         </div>
                       </div>
 
-                      <Button onClick={() => handleSave("Profile")} className="w-full mt-4">
-                        Save Changes
-                      </Button>
+                       <Button 
+                         onClick={() => handleSave("Profile")} 
+                         disabled={isSaving || profileLoading}
+                         className="w-full mt-4"
+                       >
+                         {isSaving ? "Saving..." : "Save Changes"}
+                       </Button>
                     </div>
                   )}
                 </CardContent>

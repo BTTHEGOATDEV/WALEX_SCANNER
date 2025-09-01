@@ -15,30 +15,48 @@ const AuthGuard = ({ children, requireAuth = true }: AuthGuardProps) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const isAuth = !!session?.user;
-      
-      setIsAuthenticated(isAuth);
-      setIsLoading(false);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        // Handle auth errors gracefully
+        if (error) {
+          console.warn('Auth session error:', error);
+          if (error.message.includes('refresh_token_not_found')) {
+            // Clear corrupted session
+            await supabase.auth.signOut();
+          }
+        }
+        
+        const isAuth = !!session?.user;
+        
+        setIsAuthenticated(isAuth);
+        setIsLoading(false);
 
-      if (requireAuth && !isAuth) {
-        navigate("/");
-      } else if (!requireAuth && isAuth) {
-        // If user is authenticated and trying to access login/register, redirect to dashboard
-        const currentPath = window.location.pathname;
-        if (["/login", "/register", "/"].includes(currentPath)) {
-          navigate("/dashboard");
+        if (requireAuth && !isAuth) {
+          navigate("/");
+        } else if (!requireAuth && isAuth) {
+          // If user is authenticated and trying to access login/register, redirect to dashboard
+          const currentPath = window.location.pathname;
+          if (["/login", "/register", "/"].includes(currentPath)) {
+            navigate("/dashboard");
+          }
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsLoading(false);
+        if (requireAuth) {
+          navigate("/");
         }
       }
     };
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       const isAuth = !!session?.user;
       setIsAuthenticated(isAuth);
       
-      if (requireAuth && !isAuth) {
+      if (event === 'SIGNED_OUT' || (requireAuth && !isAuth)) {
         navigate("/");
       }
     });

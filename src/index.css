@@ -160,13 +160,57 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-background text-foreground;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Smooth theme transitions */
+  /* Smooth transitions for all elements */
   *, *::before, *::after {
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, box-shadow;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, box-shadow, transform, opacity;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 300ms;
+  }
+
+  /* Prevent layout shifts during navigation */
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Smooth page transitions */
+  .page-transition {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Prevent flash of unstyled content */
+  .navbar-content {
+    min-height: 2.5rem;
+  }
+
+  /* Skeleton loading improvements */
+  .skeleton-shimmer {
+    background: linear-gradient(90deg, 
+      hsl(var(--muted)) 0%, 
+      hsl(var(--muted) / 0.8) 50%, 
+      hsl(var(--muted)) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Shield, Home, FolderOpen, Activity, FileText, Settings, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -8,49 +7,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useUserProfile } from "@/hooks/useUserProfile";
 const Navigation = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const [userProfile, setUserProfile] = useState({
-    name: "",
-    role: ""
-  });
-  useEffect(() => {
-    loadUserProfile();
-  }, []);
-  const loadUserProfile = async () => {
-    try {
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Set default values from user data
-      setUserProfile({
-        name: user.user_metadata?.full_name || user.email?.split('@')[0] || "User",
-        role: "Member"
-      });
-
-      // Try to get profile data from profiles table
-      const {
-        data: profile
-      } = await supabase.from('profiles').select('full_name, role, company').eq('user_id', user.id).maybeSingle();
-      
-      if (profile) {
-        setUserProfile({
-          name: profile.full_name || user.user_metadata?.full_name || user.email?.split('@')[0] || "User",
-          role: profile.role || "Member"
-        });
-      }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
-    }
-  };
+  const { userProfile, isLoading } = useUserProfile();
   const navItems = [{
     icon: Home,
     label: "Dashboard",
@@ -100,7 +62,7 @@ const Navigation = () => {
   };
   return <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border/50">
       <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between navbar-content">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-cyber">
@@ -126,9 +88,21 @@ const Navigation = () => {
           {/* Theme Toggle & User Profile */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-foreground">{userProfile.name}</p>
-              <p className="text-xs text-muted-foreground">{userProfile.role}</p>
+            <div className="hidden sm:block text-right min-w-0">
+              <p className="text-sm font-medium text-foreground transition-all duration-300">
+                {isLoading ? (
+                  <span className="inline-block w-16 h-4 bg-muted animate-pulse rounded"></span>
+                ) : (
+                  userProfile.name || "User"
+                )}
+              </p>
+              <p className="text-xs text-muted-foreground transition-all duration-300">
+                {isLoading ? (
+                  <span className="inline-block w-12 h-3 bg-muted animate-pulse rounded"></span>
+                ) : (
+                  userProfile.role || "Member"
+                )}
+              </p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
