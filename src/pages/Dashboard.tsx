@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import Navigation from "@/components/Navigation";
-import Dashboard from "@/components/Dashboard";
+import EnhancedDashboard from "@/components/EnhancedDashboard";
 import OnboardingGuide from "@/components/OnboardingGuide";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -57,15 +56,12 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="pt-20">
-        <Dashboard />
-      </div>
+    <>
+      <EnhancedDashboard />
       {showOnboarding && (
         <OnboardingGuide onComplete={handleOnboardingComplete} />
       )}
-    </div>
+    </>
   );
 };
 

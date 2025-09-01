@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi, Settings } from "lucide-react";
+import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi, Settings, FileText } from "lucide-react";
 import ScanDialog from "@/components/ScanDialog";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
 import ScanProgressModal from "@/components/ScanProgressModal";
@@ -146,74 +146,78 @@ const Scans = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="pt-20 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-cyber bg-clip-text text-transparent">
-                Security Scans
-              </h1>
-              <p className="text-muted-foreground">Launch and monitor security assessments</p>
-            </div>
-            <div className="flex gap-2">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between animate-fade-in-down">
+        <div>
+          <h1 className="text-3xl font-bold font-display bg-gradient-to-r from-primary via-cyber-blue to-primary bg-clip-text text-transparent">
+            Security Scans
+          </h1>
+          <p className="text-muted-foreground">Launch and monitor security assessments across your infrastructure</p>
+        </div>
+        <div className="flex gap-3 animate-slide-in-right">
+          <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
+            <Button variant="cyber" size="lg" className="hover:shadow-lg hover:shadow-primary/25 transition-all">
+              <Target className="h-4 w-4 mr-2" />
+              Launch Scan
+            </Button>
+          </ScanDialog>
+          <Button variant="outline" size="lg">
+            <FileText className="h-4 w-4 mr-2" />
+            View Reports
+          </Button>
+        </div>
+      </div>
 
-              <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
-                <Button variant="cyber" size="lg">
-                  <Target className="h-4 w-4 mr-2" />
-                  New Scan
-                </Button>
-              </ScanDialog>
-            </div>
-          </div>
-
-          {/* Quick Action Buttons */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Quick Action Buttons */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
-              <Card className="cursor-pointer hover:border-primary/50 transition-colors">
-                <CardContent className="p-4 text-center">
-                  <Target className="h-8 w-8 mx-auto mb-2 text-primary" />
-                  <h3 className="font-semibold">Domain Scan</h3>
-                  <p className="text-xs text-muted-foreground">Analyze domains & subdomains</p>
+              <Card className="cursor-pointer hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group">
+                <CardContent className="p-4 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-scan opacity-0 group-hover:opacity-100 transition-opacity animate-data-flow"></div>
+                  <Target className="h-8 w-8 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform relative z-10" />
+                  <h3 className="font-semibold relative z-10">Domain Scan</h3>
+                  <p className="text-xs text-muted-foreground relative z-10">Analyze domains & subdomains</p>
                 </CardContent>
               </Card>
             </ScanDialog>
             
             <ScanDialog actionType="Port Range Check" onScanCreated={fetchScans}>
-              <Card className="cursor-pointer hover:border-primary/50 transition-colors">
-                <CardContent className="p-4 text-center">
-                  <Wifi className="h-8 w-8 mx-auto mb-2 text-success" />
-                  <h3 className="font-semibold">Port Scan</h3>
-                  <p className="text-xs text-muted-foreground">Network port discovery</p>
+              <Card className="cursor-pointer hover:border-success/50 hover:shadow-lg hover:shadow-success/10 transition-all duration-300 group">
+                <CardContent className="p-4 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-success/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <Wifi className="h-8 w-8 mx-auto mb-2 text-success group-hover:scale-110 transition-transform relative z-10" />
+                  <h3 className="font-semibold relative z-10">Port Scan</h3>
+                  <p className="text-xs text-muted-foreground relative z-10">Network port discovery</p>
                 </CardContent>
               </Card>
             </ScanDialog>
             
             <ScanDialog actionType="Vulnerability Assessment" onScanCreated={fetchScans}>
-              <Card className="cursor-pointer hover:border-primary/50 transition-colors">
-                <CardContent className="p-4 text-center">
-                  <Shield className="h-8 w-8 mx-auto mb-2 text-warning" />
-                  <h3 className="font-semibold">Vuln Scan</h3>
-                  <p className="text-xs text-muted-foreground">Security assessment</p>
+              <Card className="cursor-pointer hover:border-warning/50 hover:shadow-lg hover:shadow-warning/10 transition-all duration-300 group">
+                <CardContent className="p-4 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-warning/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <Shield className="h-8 w-8 mx-auto mb-2 text-warning group-hover:scale-110 transition-transform relative z-10" />
+                  <h3 className="font-semibold relative z-10">Vulnerability Scan</h3>
+                  <p className="text-xs text-muted-foreground relative z-10">Security assessment</p>
                 </CardContent>
               </Card>
             </ScanDialog>
             
             <ScanDialog actionType="SSL/TLS Analysis" onScanCreated={fetchScans}>
-              <Card className="cursor-pointer hover:border-primary/50 transition-colors">
-                <CardContent className="p-4 text-center">
-                  <Database className="h-8 w-8 mx-auto mb-2 text-info" />
-                  <h3 className="font-semibold">SSL Check</h3>
-                  <p className="text-xs text-muted-foreground">Certificate analysis</p>
+              <Card className="cursor-pointer hover:border-cyber-blue/50 hover:shadow-lg hover:shadow-cyber-blue/10 transition-all duration-300 group">
+                <CardContent className="p-4 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyber-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <Lock className="h-8 w-8 mx-auto mb-2 text-cyber-blue group-hover:scale-110 transition-transform relative z-10" />
+                  <h3 className="font-semibold relative z-10">SSL Analysis</h3>
+                  <p className="text-xs text-muted-foreground relative z-10">Certificate validation</p>
                 </CardContent>
               </Card>
             </ScanDialog>
-          </div>
+      </div>
 
-          {/* Scans Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      {/* Scans Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               {scanCategories.map((category) => {
                 const IconComponent = category.icon;
@@ -358,9 +362,9 @@ const Scans = () => {
                 </TabsContent>
               );
             })}
-          </Tabs>
+      </Tabs>
 
-          <ScanDetailsDialog
+      <ScanDetailsDialog
             scanId={selectedScanId}
             isOpen={isDetailsOpen}
             onClose={() => {
@@ -368,9 +372,9 @@ const Scans = () => {
               setSelectedScanId(null);
               setSelectedScan(null);
             }}
-          />
+      />
 
-          <ScanProgressModal
+      <ScanProgressModal
             isOpen={showProgressModal}
             onClose={() => {
               setShowProgressModal(false);
@@ -379,9 +383,7 @@ const Scans = () => {
             }}
             scanId={selectedScanId}
             scanDetails={selectedScan}
-          />
-        </div>
-      </div>
+      />
     </div>
   );
 };
