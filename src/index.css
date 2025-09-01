@@ -1,144 +1,152 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
-/* Prevent text selection on interactive elements */
-button, a, label { user-select: none; }
+/* Fix for blinking cursor on non-editable elements */
+* {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+button, .button, [role="button"], .cursor-pointer {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  cursor: pointer !important;
+}
+
+/* Prevent text cursor on non-editable elements */
+h1, h2, h3, h4, h5, h6, p, span, div:not([contenteditable]), label {
+  cursor: default;
+}
+
+/* Only show text cursor on actual input elements */
+input, textarea, [contenteditable="true"] {
+  cursor: text !important;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
 
-    /* Status colors */
-    --success: 142 76% 36%;
-    --success-foreground: 355.7 100% 97.3%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 48 96% 89%;
-    --critical: 0 84% 60%;
-    --critical-foreground: 0 0% 98%;
-    --info: 199 89% 48%;
-    --info-foreground: 0 0% 98%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
+
+    --primary: 210 98% 58%;
+    --primary-foreground: 224 71% 4%;
+
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 213 31% 91%;
+
+    --muted: 215 25% 27%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+
+    --accent: 215 25% 27%;
+    --accent-foreground: 213 31% 91%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 213 31% 91%;
+
+    --border: 215 25% 27%;
+    --input: 215 25% 27%;
+    --ring: 210 98% 58%;
+
+    --radius: 0.75rem;
 
     /* Cybersecurity theme colors */
-    --cyber-green: 120 85% 50%;
-    --cyber-green-foreground: 120 85% 15%;
-    --cyber-orange: 35 95% 55%;
-    --cyber-orange-foreground: 35 95% 15%;
-    --cyber-red: 0 85% 55%;
-    --cyber-red-foreground: 0 85% 15%;
-    --cyber-blue: 220 85% 55%;
-    --cyber-blue-foreground: 220 85% 15%;
+    --cyber-green: 142 71% 45%;
+    --cyber-green-foreground: 224 71% 4%;
+    --cyber-orange: 25 95% 53%;
+    --cyber-orange-foreground: 224 71% 4%;
+    --cyber-red: 0 84% 60%;
+    --cyber-red-foreground: 213 31% 91%;
+    --cyber-blue: 217 92% 76%;
+    --cyber-blue-foreground: 224 71% 4%;
     
-    /* Advanced gradients */
-    --gradient-cyber-advanced: linear-gradient(135deg, 
-      hsl(var(--primary)) 0%, 
-      hsl(var(--cyber-blue)) 25%, 
-      hsl(var(--primary)) 50%, 
-      hsl(var(--cyber-green)) 75%, 
-      hsl(var(--primary)) 100%);
-    --gradient-matrix: linear-gradient(180deg, 
-      hsla(120, 85%, 50%, 0.1) 0%, 
-      hsla(120, 85%, 30%, 0.05) 100%);
-    --gradient-scan: linear-gradient(90deg, 
-      transparent 0%, 
-      hsl(var(--primary) / 0.1) 50%, 
-      transparent 100%);
-
+    /* Status colors */
+    --success: 142 71% 45%;
+    --success-foreground: 224 71% 4%;
+    --warning: 25 95% 53%;
+    --warning-foreground: 224 71% 4%;
+    --critical: 0 84% 60%;
+    --critical-foreground: 213 31% 91%;
+    
     /* Gradients */
-    --gradient-cyber: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--cyber-green)) 100%);
-    --gradient-danger: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--cyber-red)) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(var(--cyber-green)) 100%);
-
+    --gradient-cyber: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--cyber-blue)));
+    --gradient-danger: linear-gradient(135deg, hsl(var(--cyber-red)), hsl(var(--cyber-orange)));
+    --gradient-success: linear-gradient(135deg, hsl(var(--cyber-green)), hsl(var(--primary)));
+    
     /* Shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
-    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.4);
-
-    /* Transitions */
+    --shadow-cyber: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.4);
+    
+    /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* Sidebar colors */
+    --radius: 0.75rem;
+
     --sidebar-background: 0 0% 98%;
+
     --sidebar-foreground: 240 5.3% 26.1%;
+
     --sidebar-primary: 240 5.9% 10%;
+
     --sidebar-primary-foreground: 0 0% 98%;
+
     --sidebar-accent: 240 4.8% 95.9%;
+
     --sidebar-accent-foreground: 240 5.9% 10%;
+
     --sidebar-border: 220 13% 91%;
+
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
+
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
+
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
+
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
+
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
+
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-
-    /* Status colors - dark mode */
-    --success: 142 76% 36%;
-    --success-foreground: 355.7 100% 97.3%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 48 96% 89%;
-    --critical: 0 84% 60%;
-    --critical-foreground: 0 0% 98%;
-    --info: 199 89% 48%;
-    --info-foreground: 0 0% 98%;
-
-    /* Cybersecurity theme colors - dark mode */
-    --cyber-green: 120 85% 50%;
-    --cyber-green-foreground: 120 85% 15%;
-    --cyber-orange: 35 95% 55%;
-    --cyber-orange-foreground: 35 95% 15%;
-    --cyber-red: 0 85% 55%;
-    --cyber-red-foreground: 0 85% 15%;
-    --cyber-blue: 220 85% 55%;
-    --cyber-blue-foreground: 220 85% 15%;
-
-    /* Gradients - dark mode */
-    --gradient-cyber: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--cyber-green)) 100%);
-    --gradient-danger: linear-gradient(135deg, hsl(var(--destructive)) 0%, hsl(var(--cyber-red)) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(var(--cyber-green)) 100%);
-
-    /* Sidebar colors - dark mode */
+    --ring: 212.7 26.8% 83.9%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 94.1%;
-    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
@@ -152,7 +160,7 @@ button, a, label { user-select: none; }
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
     transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                 color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -204,23 +212,5 @@ button, a, label { user-select: none; }
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
-  }
-
-  /* Scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-muted/30;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
   }
 }
