@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Bot, MessageCircle, X, Send } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -87,18 +88,31 @@ const WalkingChatbot = () => {
 
   return (
     <>
-      {/* Walking Bot */}
+      {/* Walking Robot */}
       <div className={`fixed bottom-4 z-40 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <div className="chatbot-walking cursor-pointer group">
-              <div className="relative">
-                <div className="bg-primary/20 backdrop-blur-sm border border-primary/30 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:bg-primary/30">
-                  <Bot className="h-6 w-6 text-primary chatbot-bounce" />
+            <div className="robot-walking cursor-pointer group flex flex-col items-center">
+              {/* Always visible description */}
+              <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-lg mb-2 animate-fade-in">
+                Hey! I'm your personal assistant 👋
+                <div className="absolute bottom-[-4px] left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-border"></div>
+              </div>
+              
+              {/* Robot body */}
+              <div className="relative flex flex-col items-center robot-body">
+                {/* Robot head */}
+                <div className="bg-primary/20 backdrop-blur-sm border border-primary/30 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:bg-primary/30 robot-head">
+                  <Bot className="h-6 w-6 text-primary robot-bounce" />
                 </div>
-                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-background/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Hey! I'm your personal assistant 👋
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-border"></div>
+                
+                {/* Robot body */}
+                <div className="w-4 h-6 bg-primary/15 border border-primary/25 rounded-sm mt-1 robot-torso"></div>
+                
+                {/* Robot legs */}
+                <div className="flex gap-1 mt-1">
+                  <div className="w-1 h-4 bg-primary/20 rounded-sm robot-leg-left"></div>
+                  <div className="w-1 h-4 bg-primary/20 rounded-sm robot-leg-right"></div>
                 </div>
               </div>
             </div>
