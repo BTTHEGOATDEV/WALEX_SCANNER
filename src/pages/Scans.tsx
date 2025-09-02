@@ -5,10 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi, Settings } from "lucide-react";
+import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi, Settings, AlertTriangle } from "lucide-react";
 import ScanDialog from "@/components/ScanDialog";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
 import ScanProgressModal from "@/components/ScanProgressModal";
+import RLSSetup from "@/components/RLSSetup";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
@@ -22,6 +23,7 @@ const Scans = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [selectedScan, setSelectedScan] = useState<any>(null);
+  const [showRLSSetup, setShowRLSSetup] = useState(false);
 
   useEffect(() => {
     fetchScans();
@@ -49,18 +51,54 @@ const Scans = () => {
 
   const fetchScans = async () => {
     try {
+      // First, ensure we have a valid session
+      const { data: session, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.session?.user) {
+        console.error('No valid session found:', sessionError);
+        toast({
+          title: "Authentication Error",
+          description: "Please log in again to view your scans",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Fetching scans for user:', session.session.user.id);
+
       const { data, error } = await supabase
         .from('scans')
         .select('*')
+        .eq('user_id', session.session.user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Fetched scans:', data?.length || 0, 'scans');
       setScans(data || []);
+      
+      // If no scans found and this might be a RLS issue, offer to setup RLS
+      if (!data || data.length === 0) {
+        console.log('No scans found - might be RLS issue');
+        // Don't automatically show RLS setup, but user can trigger it if needed
+      }
     } catch (error) {
       console.error('Error fetching scans:', error);
+      
+      // Check if it's a RLS/permissions error
+      if (error && typeof error === 'object' && 'message' in error) {
+        const errorMessage = (error as any).message || '';
+        if (errorMessage.includes('RLS') || errorMessage.includes('permission') || errorMessage.includes('policy')) {
+          setShowRLSSetup(true);
+        }
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to fetch scans",
+        description: "Failed to fetch scans. Please check your permissions.",
         variant: "destructive",
       });
     } finally {
@@ -159,7 +197,16 @@ const Scans = () => {
               <p className="text-muted-foreground">Launch and monitor security assessments</p>
             </div>
             <div className="flex gap-2">
-
+              {showRLSSetup && (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowRLSSetup(false)}
+                  className="mr-2"
+                >
+                  <Shield className="h-4 w-4 mr-2" />
+                  Setup RLS
+                </Button>
+              )}
               <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
                 <Button variant="cyber" size="lg">
                   <Target className="h-4 w-4 mr-2" />
@@ -168,6 +215,26 @@ const Scans = () => {
               </ScanDialog>
             </div>
           </div>
+
+          {/* RLS Setup Card - Show when needed */}
+          {showRLSSetup && (
+            <div className="mb-6">
+              <Card className="border-warning bg-warning/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-warning">
+                    <AlertTriangle className="h-5 w-5" />
+                    Database Permissions Setup Required
+                  </CardTitle>
+                  <CardDescription>
+                    It looks like Row Level Security (RLS) policies need to be configured to enable proper data access.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RLSSetup />
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Quick Action Buttons */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
