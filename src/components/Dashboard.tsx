@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
-const Dashboard = () => {
+import PortCheckerInfo from "@/components/PortCheckerInfo";
+const Dashboard = memo(() => {
   const {
     toast
   } = useToast();
@@ -148,8 +149,8 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
             <CardHeader>
               <CardTitle>Recent Scan Activity</CardTitle>
               <CardDescription>
@@ -207,7 +208,8 @@ const Dashboard = () => {
                 </Table>}
             </CardContent>
           </Card>
-          <Card className="col-span-3">
+          
+          <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
               <CardDescription>
@@ -235,11 +237,17 @@ const Dashboard = () => {
           </Card>
         </div>
 
+        {/* Port Checker Information Section */}
+        <PortCheckerInfo />
+
         <ScanDetailsDialog scanId={selectedScanId} isOpen={isDetailsOpen} onClose={() => {
         setIsDetailsOpen(false);
         setSelectedScanId(null);
       }} />
       </div>
     </div>;
-};
+});
+
+Dashboard.displayName = 'Dashboard';
+
 export default Dashboard;

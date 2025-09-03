@@ -8,7 +8,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useUserProfile } from "@/hooks/useUserProfile";
-const Navigation = () => {
+import { memo, useMemo } from "react";
+const Navigation = memo(() => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -109,7 +110,12 @@ const Navigation = () => {
                 <Button variant="ghost" size="sm" className="p-0 h-auto hover:bg-transparent">
                   <Avatar className="cursor-pointer">
                     <AvatarFallback className="bg-primary text-primary-foreground">
-                      {userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                      {useMemo(() => 
+                        userProfile.name 
+                          ? userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() 
+                          : 'U', 
+                        [userProfile.name]
+                      )}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -130,5 +136,8 @@ const Navigation = () => {
         </div>
       </div>
     </nav>;
-};
+});
+
+Navigation.displayName = 'Navigation';
+
 export default Navigation;
