@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, Target, Network, Lock, Search, Wifi, Server, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const PortCheckerInfo = memo(() => {
+const PortCheckerInfo = () => {
   const navigate = useNavigate();
 
   const commonPorts = [
@@ -176,8 +176,6 @@ const PortCheckerInfo = memo(() => {
       </Card>
     </div>
   );
-});
-
-PortCheckerInfo.displayName = 'PortCheckerInfo';
+};
 
 export default PortCheckerInfo;

@@ -1,10 +1,10 @@
-import { ReactNode, memo } from "react";
+import { ReactNode } from "react";
 
 interface PageWrapperProps {
   children: ReactNode;
 }
 
-const PageWrapper = memo(({ children }: PageWrapperProps) => {
+const PageWrapper = ({ children }: PageWrapperProps) => {
   return (
     <div className="min-h-screen bg-background page-transition overflow-hidden">
       <div className="min-h-screen transition-all duration-300 ease-out">
@@ -12,8 +12,6 @@ const PageWrapper = memo(({ children }: PageWrapperProps) => {
       </div>
     </div>
   );
-});
-
-PageWrapper.displayName = 'PageWrapper';
+};
 
 export default PageWrapper;

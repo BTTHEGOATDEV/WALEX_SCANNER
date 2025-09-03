@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
 import PortCheckerInfo from "@/components/PortCheckerInfo";
-const Dashboard = memo(() => {
+const Dashboard = () => {
   const {
     toast
   } = useToast();
@@ -246,8 +246,6 @@ const Dashboard = memo(() => {
       }} />
       </div>
     </div>;
-});
-
-Dashboard.displayName = 'Dashboard';
+};
 
 export default Dashboard;

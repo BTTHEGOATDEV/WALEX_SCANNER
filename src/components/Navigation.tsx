@@ -8,8 +8,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { memo, useMemo } from "react";
-const Navigation = memo(() => {
+import { useMemo } from "react";
+
+const Navigation = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -136,8 +137,6 @@ const Navigation = memo(() => {
         </div>
       </div>
     </nav>;
-});
-
-Navigation.displayName = 'Navigation';
+};
 
 export default Navigation;
