@@ -14,4 +14,6 @@ const PageWrapper = memo(({ children }: PageWrapperProps) => {
   );
 });
 
+PageWrapper.displayName = 'PageWrapper';
+
 export default PageWrapper;

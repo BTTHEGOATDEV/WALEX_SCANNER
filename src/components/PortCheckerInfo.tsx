@@ -159,15 +159,18 @@ const PortCheckerInfo = memo(() => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
-            {scanTypes.map((scan, index) => (
-              <div key={index} className="flex items-start gap-3 p-4 rounded-lg border border-border/50">
-                <scan.icon className={`h-5 w-5 mt-0.5 ${scan.color}`} />
-                <div>
-                  <h3 className="font-semibold text-sm">{scan.title}</h3>
-                  <p className="text-xs text-muted-foreground mt-1">{scan.description}</p>
+            {scanTypes.map((scan, index) => {
+              const IconComponent = scan.icon;
+              return (
+                <div key={index} className="flex items-start gap-3 p-4 rounded-lg border border-border/50">
+                  <IconComponent className={`h-5 w-5 mt-0.5 ${scan.color}`} />
+                  <div>
+                    <h3 className="font-semibold text-sm">{scan.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{scan.description}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </CardContent>
       </Card>
