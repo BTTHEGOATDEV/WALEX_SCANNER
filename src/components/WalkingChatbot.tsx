@@ -25,8 +25,9 @@ const WalkingChatbot = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isVisible, setIsVisible] = useState(true);
-  const [walkingDirection, setWalkingDirection] = useState<'right' | 'left' | 'paused'>('right');
+  const [walkingDirection, setWalkingDirection] = useState<'right' | 'left' | 'paused-right' | 'paused-left'>('right');
   const [isWalking, setIsWalking] = useState(true);
+  const [animationKey, setAnimationKey] = useState(0);
 
   // Auto-responses based on keywords
   const getAutoResponse = (userMessage: string): string => {
@@ -87,67 +88,91 @@ const WalkingChatbot = () => {
     setIsVisible(!isOpen);
   }, [isOpen]);
 
-  // Complex walking animation cycle
+  // Smooth walking animation cycle with creative movement
   useEffect(() => {
     if (isOpen) return;
     
     const walkingCycle = () => {
-      // Walk right for 8 seconds
+      // Reset animation key to restart CSS animations
+      setAnimationKey(prev => prev + 1);
+      
+      // Start walking right
       setWalkingDirection('right');
       setIsWalking(true);
       
       setTimeout(() => {
-        // Pause at right edge for 7 seconds with bounce
-        setWalkingDirection('paused');
+        // Pause at right edge for 5 seconds
+        setWalkingDirection('paused-right');
         setIsWalking(false);
         
         setTimeout(() => {
-          // Walk left for 8 seconds
+          // Walk left
           setWalkingDirection('left');
           setIsWalking(true);
           
           setTimeout(() => {
-            // Pause at left edge for 7 seconds
-            setWalkingDirection('paused');
+            // Pause at left edge for 5 seconds
+            setWalkingDirection('paused-left');
             setIsWalking(false);
             
             setTimeout(() => {
               walkingCycle(); // Restart cycle
-            }, 7000);
-          }, 8000);
-        }, 7000);
-      }, 8000);
+            }, 5000);
+          }, 10000); // 10 seconds to walk left (longer distance)
+        }, 5000);
+      }, 10000); // 10 seconds to walk right
     };
 
+    // Start immediately
     walkingCycle();
   }, [isOpen]);
 
   return (
     <>
       {/* Walking Bot */}
-      <div className={`fixed bottom-4 z-40 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`fixed bottom-4 z-40 transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <div className={`chatbot-realistic-walking cursor-pointer group ${
-              walkingDirection === 'right' ? 'chatbot-walk-right' : 
-              walkingDirection === 'left' ? 'chatbot-walk-left' : 
-              'chatbot-pause-bounce'
-            }`}>
+            <div 
+              key={animationKey}
+              className={`chatbot-container cursor-pointer group ${
+                walkingDirection === 'right' ? 'chatbot-walk-right' : 
+                walkingDirection === 'left' ? 'chatbot-walk-left' : 
+                walkingDirection === 'paused-right' ? 'chatbot-pause-right' :
+                'chatbot-pause-left'
+              }`}
+            >
               <div className="relative">
-                <div className="bg-primary/20 backdrop-blur-sm border border-primary/30 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:bg-primary/30">
-                  <div className={`relative ${isWalking ? 'chatbot-walking-legs' : ''}`}>
-                    <Bot className={`h-6 w-6 text-primary transition-transform duration-200 ${
-                      walkingDirection === 'left' ? 'scale-x-[-1]' : ''
-                    }`} />
+                {/* Speech Bubble - Always visible and properly positioned */}
+                <div className={`absolute chatbot-speech-bubble ${
+                  walkingDirection === 'left' || walkingDirection === 'paused-left' 
+                    ? 'chatbot-bubble-left' : 'chatbot-bubble-right'
+                } bg-background/95 backdrop-blur-sm border border-border rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-500 min-w-max`}>
+                  <div className="flex items-center gap-2">
+                    <span className="animate-pulse">👋</span>
+                    <span>Hey! I'm your personal assistant</span>
                   </div>
+                  {/* Speech bubble tail */}
+                  <div className={`absolute ${
+                    walkingDirection === 'left' || walkingDirection === 'paused-left'
+                      ? 'top-full left-6 border-t-border border-t-4 border-x-4 border-x-transparent'
+                      : 'top-full right-6 border-t-border border-t-4 border-x-4 border-x-transparent'
+                  }`}></div>
                 </div>
-                <div className={`absolute ${
-                  walkingDirection === 'left' ? '-top-12 right-12' : '-top-12 left-1/2 transform -translate-x-1/2'
-                } bg-background/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-lg transition-all duration-300`}>
-                  Hey! I'm your personal assistant 👋
-                  <div className={`absolute top-full ${
-                    walkingDirection === 'left' ? 'right-4' : 'left-1/2 transform -translate-x-1/2'
-                  } border-4 border-transparent border-t-border`}></div>
+
+                {/* Bot Character */}
+                <div className="chatbot-character bg-gradient-to-br from-primary/30 to-primary/10 backdrop-blur-sm border border-primary/40 rounded-full p-4 shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:from-primary/40 group-hover:to-primary/20 group-hover:scale-110">
+                  <div className={`relative ${isWalking ? 'chatbot-walking-motion' : 'chatbot-idle-motion'}`}>
+                    <Bot className={`h-7 w-7 text-primary transition-all duration-300 ${
+                      walkingDirection === 'left' || walkingDirection === 'paused-left' ? 'scale-x-[-1]' : ''
+                    } group-hover:text-primary/80`} />
+                    {/* Walking dust effect */}
+                    {isWalking && (
+                      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                        <div className="chatbot-dust-particles"></div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

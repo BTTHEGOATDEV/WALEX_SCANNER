@@ -234,71 +234,228 @@ All colors MUST be HSL.
     }
   }
 
-  /* Realistic Chatbot Walking Animations */
-  .chatbot-realistic-walking {
+  /* Creative Chatbot Walking Animations */
+  .chatbot-container {
     position: fixed;
-    bottom: 1rem;
-    transition: all 0.5s ease-in-out;
+    bottom: 1.5rem;
     will-change: transform;
+    z-index: 50;
   }
 
+  /* Walking Animations with Smooth Transitions */
   .chatbot-walk-right {
-    animation: realistic-walk-right 8s linear;
-    left: 0;
+    animation: smooth-walk-right 10s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    left: -120px;
     animation-fill-mode: forwards;
   }
 
   .chatbot-walk-left {
-    animation: realistic-walk-left 8s linear;
-    right: 0;
+    animation: smooth-walk-left 10s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    right: -120px;
     animation-fill-mode: forwards;
   }
 
-  .chatbot-pause-bounce {
-    animation: pause-bounce 1s ease-in-out infinite;
+  /* Pause Animations with Creative Bounce */
+  .chatbot-pause-right {
+    right: 2rem;
+    animation: creative-pause-bounce 2s ease-in-out infinite;
   }
 
-  @keyframes realistic-walk-right {
-    from {
-      left: -100px;
-    }
-    to {
-      left: calc(100vw - 150px);
-    }
+  .chatbot-pause-left {
+    left: 2rem;
+    animation: creative-pause-bounce 2s ease-in-out infinite;
   }
 
-  @keyframes realistic-walk-left {
-    from {
-      right: -100px;
+  /* Smooth Walking Keyframes */
+  @keyframes smooth-walk-right {
+    0% {
+      left: -120px;
+      transform: translateY(0px);
     }
-    to {
-      right: calc(100vw - 150px);
+    10% {
+      transform: translateY(-2px);
     }
-  }
-
-  @keyframes pause-bounce {
-    0%, 100% {
-      transform: translateY(0);
+    20% {
+      transform: translateY(0px);
+    }
+    30% {
+      transform: translateY(-1px);
+    }
+    40% {
+      transform: translateY(0px);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-2px);
+    }
+    60% {
+      transform: translateY(0px);
+    }
+    70% {
+      transform: translateY(-1px);
+    }
+    80% {
+      transform: translateY(0px);
+    }
+    90% {
+      transform: translateY(-2px);
+    }
+    100% {
+      left: calc(100vw - 280px);
+      transform: translateY(0px);
     }
   }
 
-  .chatbot-walking-legs {
-    animation: walking-motion 0.6s ease-in-out infinite;
+  @keyframes smooth-walk-left {
+    0% {
+      right: -120px;
+      transform: translateY(0px);
+    }
+    10% {
+      transform: translateY(-2px);
+    }
+    20% {
+      transform: translateY(0px);
+    }
+    30% {
+      transform: translateY(-1px);
+    }
+    40% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+    60% {
+      transform: translateY(0px);
+    }
+    70% {
+      transform: translateY(-1px);
+    }
+    80% {
+      transform: translateY(0px);
+    }
+    90% {
+      transform: translateY(-2px);
+    }
+    100% {
+      right: calc(100vw - 280px);
+      transform: translateY(0px);
+    }
   }
 
-  @keyframes walking-motion {
+  /* Creative Pause Animation */
+  @keyframes creative-pause-bounce {
     0%, 100% {
-      transform: rotate(0deg);
+      transform: translateY(0px) scale(1);
     }
     25% {
-      transform: rotate(-2deg);
+      transform: translateY(-8px) scale(1.02);
+    }
+    50% {
+      transform: translateY(-4px) scale(1.01);
     }
     75% {
-      transform: rotate(2deg);
+      transform: translateY(-12px) scale(1.03);
     }
+  }
+
+  /* Speech Bubble Positioning */
+  .chatbot-speech-bubble {
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .chatbot-bubble-right {
+    bottom: calc(100% + 1rem);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .chatbot-bubble-left {
+    bottom: calc(100% + 1rem);
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  /* Walking Motion Effects */
+  .chatbot-walking-motion {
+    animation: realistic-walk-cycle 0.8s ease-in-out infinite;
+  }
+
+  .chatbot-idle-motion {
+    animation: subtle-idle 3s ease-in-out infinite;
+  }
+
+  @keyframes realistic-walk-cycle {
+    0%, 100% {
+      transform: rotate(0deg) translateY(0px);
+    }
+    25% {
+      transform: rotate(-1deg) translateY(-1px);
+    }
+    50% {
+      transform: rotate(0deg) translateY(-2px);
+    }
+    75% {
+      transform: rotate(1deg) translateY(-1px);
+    }
+  }
+
+  @keyframes subtle-idle {
+    0%, 100% {
+      transform: rotate(0deg) translateY(0px);
+    }
+    50% {
+      transform: rotate(0deg) translateY(-3px);
+    }
+  }
+
+  /* Dust Particles Effect */
+  .chatbot-dust-particles {
+    width: 20px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent);
+    border-radius: 2px;
+    animation: dust-trail 0.8s ease-out infinite;
+  }
+
+  @keyframes dust-trail {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.2);
+    }
+  }
+
+  /* Character Enhancement */
+  .chatbot-character {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: visible;
+  }
+
+  .chatbot-character::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, hsl(var(--primary) / 0.2), hsl(var(--cyber-blue) / 0.2));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .chatbot-character:hover::before {
+    opacity: 1;
   }
 
   /* Prevent flash of unstyled content */
