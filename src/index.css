@@ -243,34 +243,21 @@ All colors MUST be HSL.
   }
 
   .chatbot-circular {
-    animation: chatbot-circle 24s linear infinite;
+    animation: chatbot-circle 12s ease-in-out infinite;
   }
 
   @keyframes chatbot-circle {
     0% {
-      left: 50vw;
-      bottom: 20px;
-      transform: translateX(-50%);
-    }
-    25% {
-      left: calc(100vw - 120px);
-      bottom: 50vh;
-      transform: translateX(0);
+      left: 80px;
+      bottom: 30px;
     }
     50% {
-      left: 50vw;
-      bottom: calc(100vh - 120px);
-      transform: translateX(-50%);
-    }
-    75% {
-      left: 20px;
-      bottom: 50vh;
-      transform: translateX(0);
+      left: calc(100vw - 160px);
+      bottom: 30px;
     }
     100% {
-      left: 50vw;
-      bottom: 20px;
-      transform: translateX(-50%);
+      left: 80px;
+      bottom: 30px;
     }
   }
 
