@@ -1,13 +1,15 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Activity, Target, Shield, TrendingUp, Clock, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
+import ScanDialog from "@/components/ScanDialog";
 import PortCheckerInfo from "@/components/PortCheckerInfo";
 const Dashboard = () => {
   const {
@@ -168,44 +170,46 @@ const Dashboard = () => {
                   <Button onClick={() => navigate('/scans')}>
                     Start First Scan
                   </Button>
-                </div> : <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Target</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Severity</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentScans.map(scan => <TableRow key={scan.id}>
-                        <TableCell className="font-mono text-sm">{scan.target}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{scan.scan_type}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={scan.status === 'completed' ? 'default' : scan.status === 'running' ? 'secondary' : scan.status === 'failed' ? 'destructive' : 'outline'}>
-                            {scan.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={scan.severity === 'critical' ? 'bg-critical text-critical-foreground' : scan.severity === 'high' ? 'bg-cyber-red text-cyber-red-foreground' : scan.severity === 'medium' ? 'bg-warning text-warning-foreground' : scan.severity === 'low' ? 'bg-info text-info-foreground' : 'bg-success text-success-foreground'}>
-                            {scan.severity}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {new Date(scan.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm" onClick={() => handleViewDetails(scan.id)} className="h-8 w-8 p-0">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>)}
-                  </TableBody>
-                </Table>}
+                </div> : <ScrollArea className="h-80 custom-scrollbar">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Target</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Severity</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentScans.map(scan => <TableRow key={scan.id}>
+                          <TableCell className="font-mono text-sm">{scan.target}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{scan.scan_type}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={scan.status === 'completed' ? 'default' : scan.status === 'running' ? 'secondary' : scan.status === 'failed' ? 'destructive' : 'outline'}>
+                              {scan.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={scan.severity === 'critical' ? 'bg-critical text-critical-foreground' : scan.severity === 'high' ? 'bg-cyber-red text-cyber-red-foreground' : scan.severity === 'medium' ? 'bg-warning text-warning-foreground' : scan.severity === 'low' ? 'bg-info text-info-foreground' : 'bg-success text-success-foreground'}>
+                              {scan.severity}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {new Date(scan.created_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="sm" onClick={() => handleViewDetails(scan.id)} className="h-8 w-8 p-0">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>)}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>}
             </CardContent>
           </Card>
           
@@ -217,18 +221,24 @@ const Dashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button onClick={() => navigate('/scans')} className="w-full justify-start" variant="outline">
-                <Target className="mr-2 h-4 w-4" />
-                New Domain Scan
-              </Button>
-              <Button onClick={() => navigate('/scans')} className="w-full justify-start" variant="outline">
-                <Shield className="mr-2 h-4 w-4" />
-                Port Range Check
-              </Button>
-              <Button onClick={() => navigate('/scans')} className="w-full justify-start" variant="outline">
-                <Activity className="mr-2 h-4 w-4" />
-                Vulnerability Assessment
-              </Button>
+              <ScanDialog actionType="Scan New Domain" onScanCreated={fetchDashboardData}>
+                <Button className="w-full justify-start" variant="outline">
+                  <Target className="mr-2 h-4 w-4" />
+                  New Domain Scan
+                </Button>
+              </ScanDialog>
+              <ScanDialog actionType="Port Range Check" onScanCreated={fetchDashboardData}>
+                <Button className="w-full justify-start" variant="outline">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Port Range Check
+                </Button>
+              </ScanDialog>
+              <ScanDialog actionType="Vulnerability Assessment" onScanCreated={fetchDashboardData}>
+                <Button className="w-full justify-start" variant="outline">
+                  <Activity className="mr-2 h-4 w-4" />
+                  Vulnerability Assessment
+                </Button>
+              </ScanDialog>
               <Button onClick={() => navigate('/reports')} className="w-full justify-start" variant="outline">
                 <TrendingUp className="mr-2 h-4 w-4" />
                 View All Reports

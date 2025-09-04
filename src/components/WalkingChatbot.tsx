@@ -88,7 +88,7 @@ const WalkingChatbot = () => {
     setIsVisible(!isOpen);
   }, [isOpen]);
 
-  // Smooth walking animation cycle with creative movement
+  // Smooth walking animation cycle with better edge handling
   useEffect(() => {
     if (isOpen) return;
     
@@ -96,35 +96,39 @@ const WalkingChatbot = () => {
       // Reset animation key to restart CSS animations
       setAnimationKey(prev => prev + 1);
       
-      // Start walking right
+      // Start walking right (from left edge to safe distance from right edge)
       setWalkingDirection('right');
       setIsWalking(true);
       
       setTimeout(() => {
-        // Pause at right edge for 5 seconds
+        // Pause at safe distance from right edge for 5 seconds
         setWalkingDirection('paused-right');
         setIsWalking(false);
         
         setTimeout(() => {
-          // Walk left
+          // Walk left (from right safe distance to left safe distance)
           setWalkingDirection('left');
           setIsWalking(true);
           
           setTimeout(() => {
-            // Pause at left edge for 5 seconds
+            // Pause at safe distance from left edge for 5 seconds
             setWalkingDirection('paused-left');
             setIsWalking(false);
             
             setTimeout(() => {
               walkingCycle(); // Restart cycle
             }, 5000);
-          }, 10000); // 10 seconds to walk left (longer distance)
+          }, 12000); // 12 seconds for more graceful left movement
         }, 5000);
-      }, 10000); // 10 seconds to walk right
+      }, 12000); // 12 seconds for more graceful right movement
     };
 
-    // Start immediately
-    walkingCycle();
+    // Start the cycle after a short delay
+    const timer = setTimeout(() => {
+      walkingCycle();
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   return (
@@ -147,7 +151,7 @@ const WalkingChatbot = () => {
                 <div className={`absolute chatbot-speech-bubble ${
                   walkingDirection === 'left' || walkingDirection === 'paused-left' 
                     ? 'chatbot-bubble-left' : 'chatbot-bubble-right'
-                } bg-background/95 backdrop-blur-sm border border-border rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-500 min-w-max`}>
+                } bg-background/95 backdrop-blur-sm border border-border rounded-xl px-4 py-3 text-sm font-medium shadow-lg transition-all duration-500 whitespace-nowrap`}>
                   <div className="flex items-center gap-2">
                     <span className="animate-pulse">👋</span>
                     <span>Hey! I'm your personal assistant</span>
@@ -155,8 +159,8 @@ const WalkingChatbot = () => {
                   {/* Speech bubble tail */}
                   <div className={`absolute ${
                     walkingDirection === 'left' || walkingDirection === 'paused-left'
-                      ? 'top-full left-6 border-t-border border-t-4 border-x-4 border-x-transparent'
-                      : 'top-full right-6 border-t-border border-t-4 border-x-4 border-x-transparent'
+                      ? 'top-full left-8 border-t-border border-t-4 border-x-4 border-x-transparent'
+                      : 'top-full right-8 border-t-border border-t-4 border-x-4 border-x-transparent'
                   }`}></div>
                 </div>
 

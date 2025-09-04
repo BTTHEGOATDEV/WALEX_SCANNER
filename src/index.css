@@ -244,101 +244,119 @@ All colors MUST be HSL.
 
   /* Walking Animations with Smooth Transitions */
   .chatbot-walk-right {
-    animation: smooth-walk-right 10s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    left: -120px;
+    animation: smooth-walk-right 12s cubic-bezier(0.23, 1, 0.32, 1);
+    left: -160px;
     animation-fill-mode: forwards;
   }
 
   .chatbot-walk-left {
-    animation: smooth-walk-left 10s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    right: -120px;
+    animation: smooth-walk-left 12s cubic-bezier(0.23, 1, 0.32, 1);
+    right: -160px;
     animation-fill-mode: forwards;
   }
 
   /* Pause Animations with Creative Bounce */
   .chatbot-pause-right {
-    right: 2rem;
-    animation: creative-pause-bounce 2s ease-in-out infinite;
+    right: 120px; /* Safe distance from right edge */
+    animation: creative-pause-bounce 3s ease-in-out infinite;
   }
 
   .chatbot-pause-left {
-    left: 2rem;
-    animation: creative-pause-bounce 2s ease-in-out infinite;
+    left: 120px; /* Safe distance from left edge */
+    animation: creative-pause-bounce 3s ease-in-out infinite;
   }
 
   /* Smooth Walking Keyframes */
   @keyframes smooth-walk-right {
     0% {
-      left: -120px;
+      left: -160px;
       transform: translateY(0px);
     }
-    10% {
+    8% {
+      transform: translateY(-3px);
+    }
+    16% {
+      transform: translateY(0px);
+    }
+    24% {
       transform: translateY(-2px);
     }
-    20% {
+    32% {
       transform: translateY(0px);
-    }
-    30% {
-      transform: translateY(-1px);
     }
     40% {
+      transform: translateY(-4px);
+    }
+    48% {
       transform: translateY(0px);
     }
-    50% {
+    56% {
       transform: translateY(-2px);
     }
-    60% {
+    64% {
       transform: translateY(0px);
     }
-    70% {
-      transform: translateY(-1px);
+    72% {
+      transform: translateY(-3px);
     }
     80% {
       transform: translateY(0px);
     }
-    90% {
+    88% {
       transform: translateY(-2px);
     }
+    96% {
+      transform: translateY(0px);
+    }
     100% {
-      left: calc(100vw - 280px);
+      left: calc(100vw - 400px); /* Stop at safe distance from right edge */
       transform: translateY(0px);
     }
   }
 
   @keyframes smooth-walk-left {
     0% {
-      right: -120px;
+      right: -160px;
       transform: translateY(0px);
     }
-    10% {
+    8% {
+      transform: translateY(-3px);
+    }
+    16% {
+      transform: translateY(0px);
+    }
+    24% {
       transform: translateY(-2px);
     }
-    20% {
+    32% {
       transform: translateY(0px);
-    }
-    30% {
-      transform: translateY(-1px);
     }
     40% {
+      transform: translateY(-4px);
+    }
+    48% {
       transform: translateY(0px);
     }
-    50% {
+    56% {
       transform: translateY(-2px);
     }
-    60% {
+    64% {
       transform: translateY(0px);
     }
-    70% {
-      transform: translateY(-1px);
+    72% {
+      transform: translateY(-3px);
     }
     80% {
       transform: translateY(0px);
     }
-    90% {
+    88% {
       transform: translateY(-2px);
     }
+    96% {
+      transform: translateY(0px);
+    }
     100% {
-      right: calc(100vw - 280px);
+      right: calc(100vw - 400px); /* Stop at safe distance from left edge */
       transform: translateY(0px);
     }
   }
@@ -368,12 +386,14 @@ All colors MUST be HSL.
     bottom: calc(100% + 1rem);
     left: 50%;
     transform: translateX(-50%);
+    max-width: calc(100vw - 40px);
   }
 
   .chatbot-bubble-left {
     bottom: calc(100% + 1rem);
-    right: 50%;
-    transform: translateX(50%);
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 40px);
   }
 
   /* Walking Motion Effects */
@@ -476,5 +496,41 @@ All colors MUST be HSL.
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
+  }
+
+  /* Custom Scrollbar Styles */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted) / 0.3);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.6), hsl(var(--primary) / 0.8));
+    border-radius: 4px;
+    transition: background 0.3s ease;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--primary)));
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-corner {
+    background: hsl(var(--muted) / 0.3);
+  }
+
+  /* Enhanced theme transitions */
+  html {
+    transition: background-color 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  [data-theme] * {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, box-shadow, transform, opacity;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    transition-duration: 500ms;
   }
 }
