@@ -202,11 +202,94 @@ All colors MUST be HSL.
                 color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Smooth transitions for all elements */
+  /* Enhanced smooth transitions for theme switching */
   *, *::before, *::after {
     transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, box-shadow, transform, opacity;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 500ms;
+    transition-duration: 300ms;
+  }
+
+  /* Enhanced theme transition overlay */
+  .theme-transitioning {
+    --transition-overlay: rgba(0, 0, 0, 0.03);
+  }
+
+  .theme-transitioning::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--transition-overlay);
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 1;
+    animation: themeTransitionOverlay 300ms ease-out;
+  }
+
+  @keyframes themeTransitionOverlay {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Yeti-inspired login animations */
+  .yeti-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .yeti-mascot {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center bottom;
+  }
+
+  .yeti-eyes {
+    transition: transform 0.2s ease-out;
+  }
+
+  .input-focused .yeti-eyes {
+    transform: translateX(2px);
+  }
+
+  .password-peek .yeti-mascot {
+    animation: yetiPeek 0.5s ease-out;
+  }
+
+  @keyframes yetiPeek {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.05) rotate(-2deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  .login-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .login-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .input-magic {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .input-magic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .input-magic:focus-within::before {
+    left: 100%;
   }
 
   /* Prevent layout shifts during navigation */

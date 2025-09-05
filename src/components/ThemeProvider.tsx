@@ -11,11 +11,13 @@ type ThemeProviderProps = {
 type ThemeProviderState = {
   theme: Theme
   setTheme: (theme: Theme) => void
+  isTransitioning: boolean
 }
 
 const initialState: ThemeProviderState = {
   theme: "system",
   setTheme: () => null,
+  isTransitioning: false,
 }
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
@@ -29,30 +31,49 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   )
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
   useEffect(() => {
     const root = window.document.documentElement
 
-    root.classList.remove("light", "dark")
+    // Add transition class for smooth theme switching
+    root.classList.add("theme-transitioning")
+    
+    // Use requestAnimationFrame for smoother transitions
+    requestAnimationFrame(() => {
+      root.classList.remove("light", "dark")
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light"
+      if (theme === "system") {
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+          .matches
+          ? "dark"
+          : "light"
 
-      root.classList.add(systemTheme)
-      return
-    }
+        requestAnimationFrame(() => {
+          root.classList.add(systemTheme)
+          // Remove transition class after theme is applied
+          setTimeout(() => root.classList.remove("theme-transitioning"), 300)
+        })
+        return
+      }
 
-    root.classList.add(theme)
+      requestAnimationFrame(() => {
+        root.classList.add(theme)
+        // Remove transition class after theme is applied
+        setTimeout(() => root.classList.remove("theme-transitioning"), 300)
+      })
+    })
   }, [theme])
 
   const value = {
     theme,
+    isTransitioning,
     setTheme: (theme: Theme) => {
+      setIsTransitioning(true)
       localStorage.setItem(storageKey, theme)
       setTheme(theme)
+      // Reset transition state after animation completes
+      setTimeout(() => setIsTransitioning(false), 300)
     },
   }
 
