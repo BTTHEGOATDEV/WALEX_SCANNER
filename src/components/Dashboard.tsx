@@ -101,7 +101,10 @@ const Dashboard = () => {
 
         {/* Overview Stats */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
+          <Card 
+            className="cursor-pointer transition-all duration-300 hover:shadow-elegant hover:-translate-y-1 hover:shadow-lg"
+            onClick={() => navigate('/scans')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Scans</CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
@@ -113,7 +116,10 @@ const Dashboard = () => {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card 
+            className="cursor-pointer transition-all duration-300 hover:shadow-elegant hover:-translate-y-1 hover:shadow-lg"
+            onClick={() => navigate('/scans')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Completed</CardTitle>
               <Target className="h-4 w-4 text-success" />
@@ -125,7 +131,10 @@ const Dashboard = () => {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card 
+            className="cursor-pointer transition-all duration-300 hover:shadow-elegant hover:-translate-y-1 hover:shadow-lg"
+            onClick={() => navigate('/scans')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Running</CardTitle>
               <Clock className="h-4 w-4 text-warning" />
@@ -137,7 +146,10 @@ const Dashboard = () => {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card 
+            className="cursor-pointer transition-all duration-300 hover:shadow-elegant hover:-translate-y-1 hover:shadow-lg"
+            onClick={() => navigate('/scans')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Failed</CardTitle>
               <Shield className="h-4 w-4 text-cyber-red" />
