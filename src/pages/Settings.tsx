@@ -83,6 +83,11 @@ const Settings = () => {
             title: "Profile Updated",
             description: "Your profile has been saved successfully.",
           });
+          
+          // Force a page refresh to ensure navigation updates immediately
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         } else {
           throw new Error("Update failed");
         }
