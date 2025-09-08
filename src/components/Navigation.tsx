@@ -91,14 +91,14 @@ const Navigation = () => {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <div className="hidden sm:block text-right min-w-0">
-              <p className="text-sm font-medium text-foreground transition-all duration-300">
+              <p key={userProfile.name} className="text-sm font-medium text-foreground transition-all duration-300 animate-fade-in">
                 {isLoading ? (
                   <span className="inline-block w-16 h-4 bg-muted animate-pulse rounded"></span>
                 ) : (
                   userProfile.name || "User"
                 )}
               </p>
-              <p className="text-xs text-muted-foreground transition-all duration-300">
+              <p key={userProfile.role} className="text-xs text-muted-foreground transition-all duration-300 animate-fade-in">
                 {isLoading ? (
                   <span className="inline-block w-12 h-3 bg-muted animate-pulse rounded"></span>
                 ) : (
@@ -109,8 +109,8 @@ const Navigation = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="p-0 h-auto hover:bg-transparent">
-                  <Avatar className="cursor-pointer">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                  <Avatar className="cursor-pointer transition-all duration-300 hover:scale-105">
+                    <AvatarFallback key={userProfile.name} className="bg-primary text-primary-foreground animate-fade-in">
                       {useMemo(() => 
                         userProfile.name 
                           ? userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() 

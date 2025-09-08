@@ -36,11 +36,18 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement
 
-    // Add transition class for smooth theme switching
-    root.classList.add("theme-transitioning")
+    // Smoother theme transition logic
+    root.style.setProperty('--theme-transition-duration', '200ms')
     
-    // Use requestAnimationFrame for smoother transitions
-    requestAnimationFrame(() => {
+    // Add transition overlay for seamless switching
+    const overlay = document.createElement('div')
+    overlay.className = 'theme-transition-overlay'
+    document.body.appendChild(overlay)
+    
+    // Fade out
+    overlay.style.opacity = '1'
+    
+    setTimeout(() => {
       root.classList.remove("light", "dark")
 
       if (theme === "system") {
@@ -48,21 +55,19 @@ export function ThemeProvider({
           .matches
           ? "dark"
           : "light"
-
-        requestAnimationFrame(() => {
-          root.classList.add(systemTheme)
-          // Remove transition class after theme is applied
-          setTimeout(() => root.classList.remove("theme-transitioning"), 300)
-        })
-        return
+        root.classList.add(systemTheme)
+      } else {
+        root.classList.add(theme)
       }
 
-      requestAnimationFrame(() => {
-        root.classList.add(theme)
-        // Remove transition class after theme is applied
-        setTimeout(() => root.classList.remove("theme-transitioning"), 300)
-      })
-    })
+      // Fade in
+      setTimeout(() => {
+        overlay.style.opacity = '0'
+        setTimeout(() => {
+          document.body.removeChild(overlay)
+        }, 200)
+      }, 50)
+    }, 100)
   }, [theme])
 
   const value = {
