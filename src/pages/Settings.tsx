@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -84,10 +85,7 @@ const Settings = () => {
             description: "Your profile has been saved successfully.",
           });
           
-          // Force a page refresh to ensure navigation updates immediately
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+          // No need to reload - the navigation will update automatically
         } else {
           throw new Error("Update failed");
         }
@@ -142,7 +140,7 @@ const Settings = () => {
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Profile
@@ -154,6 +152,14 @@ const Settings = () => {
               <TabsTrigger value="security" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 Security
+              </TabsTrigger>
+              <TabsTrigger value="billing" className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                Billing
+              </TabsTrigger>
+              <TabsTrigger value="api" className="flex items-center gap-2">
+                <Key className="h-4 w-4" />
+                API
               </TabsTrigger>
               <TabsTrigger value="system" className="flex items-center gap-2">
                 <Monitor className="h-4 w-4" />
@@ -405,6 +411,209 @@ const Settings = () => {
                   </CardContent>
                 </Card>
               </div>
+            </TabsContent>
+
+            {/* Billing Tab */}
+            <TabsContent value="billing">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5" />
+                    Billing & Subscription
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your subscription and billing preferences
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-6 rounded-lg border border-primary/20">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">Current Plan: Free Tier</h3>
+                        <p className="text-sm text-muted-foreground">5 scans per month • Basic reporting</p>
+                      </div>
+                      <Button variant="cyber" onClick={handleComingSoon}>
+                        Upgrade Plan
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="relative overflow-hidden">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base">Basic</CardTitle>
+                        <div className="text-2xl font-bold">$9<span className="text-sm font-normal">/mo</span></div>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <p>• 50 scans/month</p>
+                        <p>• Basic reports</p>
+                        <p>• Email support</p>
+                        <Button variant="outline" size="sm" className="w-full mt-4" onClick={handleComingSoon}>
+                          Select Plan
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="relative overflow-hidden border-primary/50 bg-primary/5">
+                      <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 py-1 text-xs rounded-bl-lg">
+                        Popular
+                      </div>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base">Professional</CardTitle>
+                        <div className="text-2xl font-bold">$29<span className="text-sm font-normal">/mo</span></div>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <p>• 500 scans/month</p>
+                        <p>• Advanced reports</p>
+                        <p>• API access</p>
+                        <p>• Priority support</p>
+                        <Button variant="cyber" size="sm" className="w-full mt-4" onClick={handleComingSoon}>
+                          Select Plan
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="relative overflow-hidden">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base">Enterprise</CardTitle>
+                        <div className="text-2xl font-bold">$99<span className="text-sm font-normal">/mo</span></div>
+                      </CardHeader>
+                      <CardContent className="space-y-2 text-sm">
+                        <p>• Unlimited scans</p>
+                        <p>• Custom reports</p>
+                        <p>• White-label</p>
+                        <p>• Dedicated support</p>
+                        <Button variant="outline" size="sm" className="w-full mt-4" onClick={handleComingSoon}>
+                          Contact Sales
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Billing Information</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Next Billing Date</Label>
+                        <p className="text-sm text-muted-foreground">N/A (Free Plan)</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Payment Method</Label>
+                        <p className="text-sm text-muted-foreground">No payment method on file</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" onClick={handleComingSoon}>Add Payment Method</Button>
+                      <Button variant="outline" onClick={handleComingSoon}>Download Invoices</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* API Tab */}
+            <TabsContent value="api">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Key className="h-5 w-5" />
+                    API & Webhooks
+                  </CardTitle>
+                  <CardDescription>
+                    Manage API keys and webhook configurations for automated scanning
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Upgrade Banner */}
+                  <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center">
+                          <Key className="h-5 w-5 text-white" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-amber-700 dark:text-amber-300">Upgrade Required</h4>
+                        <p className="text-sm text-amber-600 dark:text-amber-400">
+                          API access and webhooks are available on Professional and Enterprise plans
+                        </p>
+                      </div>
+                      <Button variant="cyber" size="sm" onClick={handleComingSoon}>
+                        Upgrade Now
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 opacity-50">
+                    <div>
+                      <Label className="text-base font-medium">API Keys</Label>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Generate and manage API keys for programmatic access to BTScan
+                      </p>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/50">
+                          <div>
+                            <div className="font-mono text-sm">bts_*********************</div>
+                            <div className="text-xs text-muted-foreground">Created 2 days ago • Last used: Never</div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" disabled>Copy</Button>
+                            <Button variant="outline" size="sm" disabled>Revoke</Button>
+                          </div>
+                        </div>
+                        <Button variant="outline" disabled>
+                          <Key className="h-4 w-4 mr-2" />
+                          Generate New API Key
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-base font-medium">Webhooks</Label>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Configure webhooks to receive real-time notifications about scan results
+                      </p>
+                      <div className="space-y-3">
+                        <div className="p-4 border rounded-lg bg-muted/50">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="font-medium">Scan Completion Webhook</div>
+                            <Badge variant="secondary">Inactive</Badge>
+                          </div>
+                          <div className="text-sm text-muted-foreground mb-3">
+                            https://your-app.com/webhooks/scan-complete
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" disabled>Edit</Button>
+                            <Button variant="outline" size="sm" disabled>Test</Button>
+                            <Button variant="outline" size="sm" disabled>Delete</Button>
+                          </div>
+                        </div>
+                        <Button variant="outline" disabled>
+                          <Palette className="h-4 w-4 mr-2" />
+                          Add New Webhook
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-base font-medium">Rate Limits</Label>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Current API usage and limits for your plan
+                      </p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-3 border rounded-lg text-center">
+                          <div className="text-2xl font-bold text-muted-foreground">0</div>
+                          <div className="text-sm text-muted-foreground">Requests Today</div>
+                        </div>
+                        <div className="p-3 border rounded-lg text-center">
+                          <div className="text-2xl font-bold text-muted-foreground">100</div>
+                          <div className="text-sm text-muted-foreground">Daily Limit</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* System Tab */}

@@ -91,14 +91,14 @@ const Navigation = () => {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <div className="hidden sm:block text-right min-w-0">
-              <p key={userProfile.name} className="text-sm font-medium text-foreground transition-all duration-300 animate-fade-in">
+              <p className="text-sm font-medium text-foreground transition-all duration-300">
                 {isLoading ? (
                   <span className="inline-block w-16 h-4 bg-muted animate-pulse rounded"></span>
                 ) : (
                   userProfile.name || "User"
                 )}
               </p>
-              <p key={userProfile.role} className="text-xs text-muted-foreground transition-all duration-300 animate-fade-in">
+              <p className="text-xs text-muted-foreground transition-all duration-300">
                 {isLoading ? (
                   <span className="inline-block w-12 h-3 bg-muted animate-pulse rounded"></span>
                 ) : (
@@ -110,13 +110,13 @@ const Navigation = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="p-0 h-auto hover:bg-transparent">
                   <Avatar className="cursor-pointer transition-all duration-300 hover:scale-105">
-                    <AvatarFallback key={userProfile.name} className="bg-primary text-primary-foreground animate-fade-in">
-                      {useMemo(() => 
-                        userProfile.name 
+                    <AvatarFallback className="bg-primary text-primary-foreground transition-all duration-300">
+                      {useMemo(() => {
+                        if (isLoading) return 'U';
+                        return userProfile.name 
                           ? userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() 
-                          : 'U', 
-                        [userProfile.name]
-                      )}
+                          : 'U';
+                      }, [userProfile.name, isLoading])}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
