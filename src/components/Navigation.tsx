@@ -71,7 +71,7 @@ const Navigation = () => {
               <Shield className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">BTScan</h1>
+              <h1 className="text-xl font-bold text-foreground">WALEXScan</h1>
               <p className="text-xs text-muted-foreground">Professional Pentesting Webapp</p>
             </div>
           </div>
@@ -102,7 +102,7 @@ const Navigation = () => {
                 {isLoading ? (
                   <span className="inline-block w-12 h-3 bg-muted animate-pulse rounded"></span>
                 ) : (
-                  userProfile.role || "Member"
+                  userProfile.role || userProfile.role
                 )}
               </p>
             </div>
@@ -112,10 +112,10 @@ const Navigation = () => {
                   <Avatar className="cursor-pointer transition-all duration-300 hover:scale-105">
                     <AvatarFallback className="bg-primary text-primary-foreground transition-all duration-300">
                       {useMemo(() => {
-                        if (isLoading) return 'U';
+                        if (isLoading) return '';
                         return userProfile.name 
                           ? userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase() 
-                          : 'U';
+                          : '';
                       }, [userProfile.name, isLoading])}
                     </AvatarFallback>
                   </Avatar>

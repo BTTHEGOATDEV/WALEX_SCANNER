@@ -11,7 +11,7 @@ export default function Landing() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Shield className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">BTScan</span>
+            <span className="text-xl font-bold text-foreground">WALEXSCAN</span>
           </div>
           <div className="flex gap-4">
             <Link to="/login">
@@ -126,7 +126,7 @@ export default function Landing() {
           <CardHeader>
             <CardTitle className="text-3xl mb-4">Ready to Secure Your Infrastructure?</CardTitle>
             <CardDescription className="text-lg">
-              Join thousands of security professionals who trust CyberScan for their penetration testing needs.
+              Join thousands of security professionals who trust WALEX for their penetration testing needs.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -147,10 +147,10 @@ export default function Landing() {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-6 w-6 text-primary" />
-            <span className="text-lg font-bold">BTScan</span>
+            <span className="text-lg font-bold">WALEXSCAN</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2025 BTScan. Professional penetration testing platform.
+            © 2025 WALEXSCAN. Professional penetration testing platform.
           </p>
         </div>
       </footer>

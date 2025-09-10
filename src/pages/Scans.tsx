@@ -5,11 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Target, Shield, Zap, Lock, Calendar, Clock, Eye, Trash2, Database, Wifi, Settings, AlertTriangle } from "lucide-react";
+import { Target, Shield, Wifi, Lock, Eye, Trash2, Database } from "lucide-react";
 import ScanDialog from "@/components/ScanDialog";
 import ScanDetailsDialog from "@/components/ScanDetailsDialog";
 import ScanProgressModal from "@/components/ScanProgressModal";
-import RLSSetup from "@/components/RLSSetup";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
@@ -23,20 +22,19 @@ const Scans = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [selectedScan, setSelectedScan] = useState<any>(null);
-  const [showRLSSetup, setShowRLSSetup] = useState(false);
 
   useEffect(() => {
     fetchScans();
-    
+
     // Set up real-time subscription
     const channel = supabase
-      .channel('scans-changes')
+      .channel("scans-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'scans'
+          event: "*",
+          schema: "public",
+          table: "scans",
         },
         () => {
           fetchScans(); // Refresh when scans change
@@ -51,11 +49,10 @@ const Scans = () => {
 
   const fetchScans = async () => {
     try {
-      // First, ensure we have a valid session
       const { data: session, error: sessionError } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.session?.user) {
-        console.error('No valid session found:', sessionError);
+        console.error("No valid session found:", sessionError);
         toast({
           title: "Authentication Error",
           description: "Please log in again to view your scans",
@@ -64,41 +61,20 @@ const Scans = () => {
         return;
       }
 
-      console.log('Fetching scans for user:', session.session.user.id);
-
       const { data, error } = await supabase
-        .from('scans')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false });
+        .from("scans")
+        .select("*")
+        .eq("user_id", session.session.user.id)
+        .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-      
-      console.log('Fetched scans:', data?.length || 0, 'scans');
+      if (error) throw error;
+
       setScans(data || []);
-      
-      // If no scans found and this might be a RLS issue, offer to setup RLS
-      if (!data || data.length === 0) {
-        console.log('No scans found - might be RLS issue');
-        // Don't automatically show RLS setup, but user can trigger it if needed
-      }
     } catch (error) {
-      console.error('Error fetching scans:', error);
-      
-      // Check if it's a RLS/permissions error
-      if (error && typeof error === 'object' && 'message' in error) {
-        const errorMessage = (error as any).message || '';
-        if (errorMessage.includes('RLS') || errorMessage.includes('permission') || errorMessage.includes('policy')) {
-          setShowRLSSetup(true);
-        }
-      }
-      
+      console.error("Error fetching scans:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch scans. Please check your permissions.",
+        description: "Failed to fetch scans.",
         variant: "destructive",
       });
     } finally {
@@ -108,11 +84,7 @@ const Scans = () => {
 
   const handleDeleteScan = async (scanId: string) => {
     try {
-      const { error } = await supabase
-        .from('scans')
-        .delete()
-        .eq('id', scanId);
-
+      const { error } = await supabase.from("scans").delete().eq("id", scanId);
       if (error) throw error;
 
       toast({
@@ -120,9 +92,9 @@ const Scans = () => {
         description: "Scan has been successfully deleted",
       });
 
-      fetchScans(); // Refresh the list
+      fetchScans();
     } catch (error) {
-      console.error('Error deleting scan:', error);
+      console.error("Error deleting scan:", error);
       toast({
         title: "Error",
         description: "Failed to delete scan",
@@ -132,12 +104,11 @@ const Scans = () => {
   };
 
   const handleViewDetails = (scanId: string) => {
-    const scan = scans.find(s => s.id === scanId);
+    const scan = scans.find((s) => s.id === scanId);
     setSelectedScan(scan);
     setSelectedScanId(scanId);
-    
-    // Show progress modal for running scans, details dialog for completed scans
-    if (scan?.status === 'running' || scan?.status === 'queued') {
+
+    if (scan?.status === "running" || scan?.status === "queued") {
       setShowProgressModal(true);
     } else {
       setIsDetailsOpen(true);
@@ -151,7 +122,7 @@ const Scans = () => {
       icon: Target,
       description: "Comprehensive domain and subdomain analysis",
       color: "text-primary",
-      types: ["domain"]
+      types: ["domain"],
     },
     {
       id: "port",
@@ -159,7 +130,7 @@ const Scans = () => {
       icon: Wifi,
       description: "Network port discovery and enumeration",
       color: "text-success",
-      types: ["port"]
+      types: ["port"],
     },
     {
       id: "vulnerability",
@@ -167,7 +138,7 @@ const Scans = () => {
       icon: Shield,
       description: "Security weakness identification",
       color: "text-warning",
-      types: ["vulnerability"]
+      types: ["vulnerability"],
     },
     {
       id: "ssl",
@@ -175,12 +146,12 @@ const Scans = () => {
       icon: Lock,
       description: "Certificate and encryption analysis",
       color: "text-info",
-      types: ["ssl"]
-    }
+      types: ["ssl"],
+    },
   ];
 
   const getFilteredScans = (types: string[]) => {
-    return scans.filter(scan => types.includes(scan.scan_type));
+    return scans.filter((scan) => types.includes(scan.scan_type));
   };
 
   return (
@@ -197,16 +168,6 @@ const Scans = () => {
               <p className="text-muted-foreground">Launch and monitor security assessments</p>
             </div>
             <div className="flex gap-2">
-              {showRLSSetup && (
-                <Button
-                  variant="outline"
-                  onClick={() => setShowRLSSetup(false)}
-                  className="mr-2"
-                >
-                  <Shield className="h-4 w-4 mr-2" />
-                  Setup RLS
-                </Button>
-              )}
               <ScanDialog actionType="Scan New Domain" onScanCreated={fetchScans}>
                 <Button variant="cyber" size="lg">
                   <Target className="h-4 w-4 mr-2" />
@@ -215,26 +176,6 @@ const Scans = () => {
               </ScanDialog>
             </div>
           </div>
-
-          {/* RLS Setup Card - Show when needed */}
-          {showRLSSetup && (
-            <div className="mb-6">
-              <Card className="border-warning bg-warning/5">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-warning">
-                    <AlertTriangle className="h-5 w-5" />
-                    Database Permissions Setup Required
-                  </CardTitle>
-                  <CardDescription>
-                    It looks like Row Level Security (RLS) policies need to be configured to enable proper data access.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RLSSetup />
-                </CardContent>
-              </Card>
-            </div>
-          )}
 
           {/* Quick Action Buttons */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -247,7 +188,7 @@ const Scans = () => {
                 </CardContent>
               </Card>
             </ScanDialog>
-            
+
             <ScanDialog actionType="Port Range Check" onScanCreated={fetchScans}>
               <Card className="cursor-pointer hover:border-primary/50 transition-colors">
                 <CardContent className="p-4 text-center">
@@ -257,7 +198,7 @@ const Scans = () => {
                 </CardContent>
               </Card>
             </ScanDialog>
-            
+
             <ScanDialog actionType="Vulnerability Assessment" onScanCreated={fetchScans}>
               <Card className="cursor-pointer hover:border-primary/50 transition-colors">
                 <CardContent className="p-4 text-center">
@@ -267,7 +208,7 @@ const Scans = () => {
                 </CardContent>
               </Card>
             </ScanDialog>
-            
+
             <ScanDialog actionType="SSL/TLS Analysis" onScanCreated={fetchScans}>
               <Card className="cursor-pointer hover:border-primary/50 transition-colors">
                 <CardContent className="p-4 text-center">
@@ -296,7 +237,7 @@ const Scans = () => {
             {scanCategories.map((category) => {
               const filteredScans = getFilteredScans(category.types);
               const IconComponent = category.icon;
-              
+
               return (
                 <TabsContent key={category.id} value={category.id} className="space-y-4">
                   <Card>
@@ -343,29 +284,41 @@ const Scans = () => {
                                   <TableCell>
                                     <div className="flex flex-col gap-1">
                                       <Badge variant="outline">{scan.scan_type}</Badge>
-                                      {scan.scan_subtype && <Badge variant="secondary" className="text-xs">{scan.scan_subtype}</Badge>}
+                                      {scan.scan_subtype && (
+                                        <Badge variant="secondary" className="text-xs">
+                                          {scan.scan_subtype}
+                                        </Badge>
+                                      )}
                                     </div>
                                   </TableCell>
                                   <TableCell>
-                                    <Badge 
+                                    <Badge
                                       variant={
-                                        scan.status === 'completed' ? 'default' : 
-                                        scan.status === 'running' ? 'secondary' : 
-                                        scan.status === 'failed' ? 'destructive' : 'outline'
+                                        scan.status === "completed"
+                                          ? "default"
+                                          : scan.status === "running"
+                                          ? "secondary"
+                                          : scan.status === "failed"
+                                          ? "destructive"
+                                          : "outline"
                                       }
                                     >
                                       {scan.status}
                                     </Badge>
                                   </TableCell>
                                   <TableCell>
-                                    <Badge 
+                                    <Badge
                                       variant="outline"
                                       className={
-                                        scan.severity === 'critical' ? 'bg-critical text-critical-foreground' :
-                                        scan.severity === 'high' ? 'bg-cyber-red text-cyber-red-foreground' :
-                                        scan.severity === 'medium' ? 'bg-warning text-warning-foreground' :
-                                        scan.severity === 'low' ? 'bg-info text-info-foreground' :
-                                        'bg-success text-success-foreground'
+                                        scan.severity === "critical"
+                                          ? "bg-critical text-critical-foreground"
+                                          : scan.severity === "high"
+                                          ? "bg-cyber-red text-cyber-red-foreground"
+                                          : scan.severity === "medium"
+                                          ? "bg-warning text-warning-foreground"
+                                          : scan.severity === "low"
+                                          ? "bg-info text-info-foreground"
+                                          : "bg-success text-success-foreground"
                                       }
                                     >
                                       {scan.severity}

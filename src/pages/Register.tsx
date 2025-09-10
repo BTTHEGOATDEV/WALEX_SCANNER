@@ -37,7 +37,7 @@ const Register = () => {
     if (password.length < 10) {
       toast({
         title: "Registration failed",
-        description: "Password must be at least 6 characters long",
+        description: "Password must be at least 10 characters long",
         variant: "destructive",
         duration: 2000,
       });
@@ -96,7 +96,7 @@ const Register = () => {
               <Shield className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Join BTScan</h1>
+          <h1 className="text-2xl font-bold">Join WALEXScan</h1>
           <p className="text-muted-foreground">Create your security dashboard account</p>
         </div>
 

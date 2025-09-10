@@ -30,10 +30,9 @@ input, textarea, [contenteditable="true"] {
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
+/* =====================
+   DESIGN TOKENS
+===================== */
 @layer base {
   :root {
     --background: 224 71% 4%;
@@ -114,32 +113,23 @@ All colors MUST be HSL.
   .dark {
     --background: 222.2 84% 2.5%;
     --foreground: 210 40% 98%;
-
     --card: 220 13% 8%;
     --card-foreground: 210 40% 98%;
-
     --popover: 220 13% 8%;
     --popover-foreground: 210 40% 98%;
-
     --primary: 160 84% 39%;
     --primary-foreground: 222.2 84% 2.5%;
-
     --secondary: 217.2 32.6% 12%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 12%;
     --muted-foreground: 215 20.2% 70%;
-
     --accent: 217.2 32.6% 15%;
     --accent-foreground: 210 40% 98%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 15%;
     --input: 217.2 32.6% 12%;
     --ring: 160 84% 39%;
-    
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 95.9%;
     --sidebar-primary: 210 98% 58%;
@@ -150,36 +140,26 @@ All colors MUST be HSL.
     --sidebar-ring: 210 98% 58%;
   }
 
-  /* Light theme - brighter with more contrast */
   .light {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-
     --primary: 160 84% 39%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 210 40% 94%;
     --secondary-foreground: 222.2 84% 4.9%;
-
     --muted: 210 40% 94%;
     --muted-foreground: 215.4 16.3% 40%;
-
     --accent: 210 40% 92%;
     --accent-foreground: 222.2 84% 4.9%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-
     --border: 214.3 31.8% 88%;
     --input: 214.3 31.8% 88%;
     --ring: 160 84% 39%;
-    
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 3.9%;
     --sidebar-primary: 210 98% 58%;
@@ -196,272 +176,102 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  /* THEME TRANSITIONS */
   body {
     @apply bg-background text-foreground;
-    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), 
-                color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: background-color, color;
   }
 
-  /* Enhanced smooth transitions for theme switching */
-  * {
-    transition: background-color var(--theme-transition-duration, 200ms) cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                color var(--theme-transition-duration, 200ms) cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                border-color var(--theme-transition-duration, 200ms) cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                box-shadow var(--theme-transition-duration, 200ms) cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  [data-theme] * {
+    transition-property: background-color, color, border-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    transition-duration: 400ms;
   }
 
-  /* Theme transition overlay */
-  .theme-transition-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--background);
-    opacity: 0;
-    z-index: 9999;
-    pointer-events: none;
-    transition: opacity 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  button, a, .card, .login-card, .chatbot-character {
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, box-shadow;
   }
 
-  /* Optimize rendering during theme transitions */
-  .theme-transitioning {
-    will-change: background-color, color, border-color;
-  }
-
-
-  /* Yeti-inspired login animations */
-  .yeti-container {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .yeti-mascot {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: center bottom;
-  }
-
-  .yeti-eyes {
-    transition: transform 0.2s ease-out;
-  }
-
-  .input-focused .yeti-eyes {
-    transform: translateX(2px);
-  }
-
-  .password-peek .yeti-mascot {
-    animation: yetiPeek 0.5s ease-out;
-  }
-
-  @keyframes yetiPeek {
-    0% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.05) rotate(-2deg); }
-    100% { transform: scale(1) rotate(0deg); }
-  }
-
-  .login-card {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .login-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  }
-
-  .input-magic {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .input-magic::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-  }
-
-  .input-magic:focus-within::before {
-    left: 100%;
-  }
-
-  /* Prevent layout shifts during navigation */
-  .min-h-screen {
-    min-height: 100vh;
-    min-height: 100dvh;
-  }
-
-  /* Enhanced page transitions with no distortion */
   .page-transition {
-    animation: smoothPageEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: smoothPageEnter 0.45s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: opacity, transform;
     backface-visibility: hidden;
     transform: translateZ(0);
   }
-
-  @keyframes smoothPageEnter {
-    from {
-      opacity: 0;
-      transform: translateY(20px) scale(0.98);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  /* Smooth Circular Chatbot Animation */
-  .chatbot-container {
-    position: fixed;
-    bottom: 1.5rem;
-    will-change: transform;
-    z-index: 50;
-  }
-
-  .chatbot-circular {
-    animation: chatbot-circle 12s ease-in-out infinite;
-  }
-
-  @keyframes chatbot-circle {
-    0% {
-      left: 80px;
-      bottom: 30px;
-    }
-    50% {
-      left: calc(100vw - 160px);
-      bottom: 30px;
-    }
-    100% {
-      left: 80px;
-      bottom: 30px;
-    }
-  }
-
-  /* Walking Motion Effects */
-  .chatbot-walking-motion {
-    animation: realistic-walk-cycle 0.8s ease-in-out infinite;
-  }
-
-  @keyframes realistic-walk-cycle {
-    0%, 100% {
-      transform: rotate(0deg) translateY(0px);
-    }
-    25% {
-      transform: rotate(-1deg) translateY(-1px);
-    }
-    50% {
-      transform: rotate(0deg) translateY(-2px);
-    }
-    75% {
-      transform: rotate(1deg) translateY(-1px);
-    }
-  }
-
-  /* Dust Particles Effect */
-  .chatbot-dust-particles {
-    width: 20px;
-    height: 4px;
-    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent);
-    border-radius: 2px;
-    animation: dust-trail 0.8s ease-out infinite;
-  }
-
-  @keyframes dust-trail {
-    0% {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(1.2);
-    }
-  }
-
-  /* Character Enhancement */
-  .chatbot-character {
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    overflow: visible;
-  }
-
-  .chatbot-character::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, hsl(var(--primary) / 0.2), hsl(var(--cyber-blue) / 0.2));
-    border-radius: inherit;
-    z-index: -1;
+@keyframes smoothPageEnter {
+  from {
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transform: none; /* remove scaling & translate */
   }
-
-  .chatbot-character:hover::before {
+  to {
     opacity: 1;
+    transform: none;
+  }
+}
+
+  /* Ripple + Glow for Theme Toggle */
+  .theme-ripple {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle, rgba(255,255,255,0.35), transparent 70%);
+    animation: ripple 0.6s ease-out;
+    z-index: 10;
+  }
+  @keyframes ripple {
+    from { transform: scale(0); opacity: 1; }
+    to   { transform: scale(2.5); opacity: 0; }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 2s infinite;
   }
 
-  /* Prevent flash of unstyled content */
-  .navbar-content {
-    min-height: 2.5rem;
+  /* Accessibility: reduce motion */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+      animation: none !important;
+    }
   }
 
-  /* Skeleton loading improvements */
-  .skeleton-shimmer {
-    background: linear-gradient(90deg, 
-      hsl(var(--muted)) 0%, 
-      hsl(var(--muted) / 0.8) 50%, 
-      hsl(var(--muted)) 100%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
+  /* --- Yeti animations, Chatbot, Scrollbar, Skeleton (unchanged) --- */
+  .yeti-container { position: relative; overflow: hidden; }
+  .yeti-mascot { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: center bottom; }
+  .yeti-eyes { transition: transform 0.2s ease-out; }
+  .input-focused .yeti-eyes { transform: translateX(2px); }
+  .password-peek .yeti-mascot { animation: yetiPeek 0.5s ease-out; }
+  @keyframes yetiPeek { 0% { transform: scale(1) rotate(0deg);} 50% { transform: scale(1.05) rotate(-2deg);} 100% { transform: scale(1) rotate(0deg);} }
+  .login-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .login-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
+  .input-magic { position: relative; overflow: hidden; }
+  .input-magic::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
+  .input-magic:focus-within::before { left: 100%; }
 
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
+  .chatbot-container { position: fixed; bottom: 1.5rem; will-change: transform; z-index: 50; }
+  .chatbot-circular { animation: chatbot-circle 12s ease-in-out infinite; }
+  @keyframes chatbot-circle { 0%{left:80px;bottom:30px;}50%{left:calc(100vw - 160px);bottom:30px;}100%{left:80px;bottom:30px;} }
+  .chatbot-walking-motion { animation: realistic-walk-cycle 0.8s ease-in-out infinite; }
+  @keyframes realistic-walk-cycle { 0%,100%{transform:rotate(0deg) translateY(0);}25%{transform:rotate(-1deg) translateY(-1px);}50%{transform:rotate(0deg) translateY(-2px);}75%{transform:rotate(1deg) translateY(-1px);} }
+  .chatbot-dust-particles { width:20px; height:4px; background:linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent); border-radius:2px; animation:dust-trail 0.8s ease-out infinite; }
+  @keyframes dust-trail { 0%{opacity:0;transform:scale(0.8);}50%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.2);} }
+  .chatbot-character { transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); position: relative; overflow: visible; }
+  .chatbot-character::before { content:''; position:absolute; top:-2px; left:-2px; right:-2px; bottom:-2px; background:linear-gradient(45deg, hsl(var(--primary) / 0.2), hsl(var(--cyber-blue) / 0.2)); border-radius: inherit; z-index:-1; opacity:0; transition: opacity 0.3s ease; }
+  .chatbot-character:hover::before { opacity: 1; }
 
-  /* Custom Scrollbar Styles */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+  .skeleton-shimmer { background: linear-gradient(90deg,hsl(var(--muted)) 0%,hsl(var(--muted) / 0.8) 50%,hsl(var(--muted)) 100%); background-size:200% 100%; animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { 0%{background-position:-200% 0;}100%{background-position:200% 0;} }
 
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: hsl(var(--muted) / 0.3);
-    border-radius: 4px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.6), hsl(var(--primary) / 0.8));
-    border-radius: 4px;
-    transition: background 0.3s ease;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.8), hsl(var(--primary)));
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-corner {
-    background: hsl(var(--muted) / 0.3);
-  }
-
-  /* Enhanced theme transitions */
-  html {
-    transition: background-color 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-
-  [data-theme] * {
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, box-shadow, transform, opacity;
-    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-    transition-duration: 500ms;
-  }
+  .custom-scrollbar::-webkit-scrollbar { width:8px; height:8px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background:hsl(var(--muted) / 0.3); border-radius:4px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background:linear-gradient(135deg,hsl(var(--primary) / 0.6),hsl(var(--primary) / 0.8)); border-radius:4px; transition:background 0.3s ease; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background:linear-gradient(135deg,hsl(var(--primary) / 0.8),hsl(var(--primary))); }
+  .custom-scrollbar::-webkit-scrollbar-corner { background:hsl(var(--muted) / 0.3); }
 }

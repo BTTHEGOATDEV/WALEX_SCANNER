@@ -699,7 +699,7 @@ const Settings = () => {
           <DialogHeader>
             <DialogTitle>Coming Soon!</DialogTitle>
             <DialogDescription className="text-center py-4">
-              This feature is currently under development and will be available in a future update.
+              This feature is currently under development by DEV BT and will be available in a future update.
               <br /><br />
               Stay tuned for more exciting features!
             </DialogDescription>

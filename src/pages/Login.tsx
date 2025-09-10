@@ -178,7 +178,7 @@ const Login = () => {
         {/* Subtle footer animation */}
         <div className="mt-8 text-center">
           <p className="text-xs text-muted-foreground/60">
-            Secured by BTScan • Your security is our priority
+            Secured by WALEXSCAN • Your security is our priority
           </p>
         </div>
       </div>
